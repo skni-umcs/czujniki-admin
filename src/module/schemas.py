@@ -1,14 +1,11 @@
+from datetime import datetime
 from pydantic import BaseModel
 
 
 class ModuleBase(BaseModel):
-    module_name: str
     module_code: str
-    location: str
-    is_active: int
-    is_deleted: int
-    signal_power: int
-    url: str
+    module_name: str
+    module_location: str
 
 
 class ModuleCreate(ModuleBase):
@@ -17,16 +14,27 @@ class ModuleCreate(ModuleBase):
 
 class ModuleUpdate(BaseModel):
     module_name: str | None
-    module_code: str | None
-    location: str | None
-    is_active: int | None
-    is_deleted: int | None
-    signal_power: int | None
-    url: str | None
+    module_location: str | None
+    module_status: int | None
 
 
 class Module(ModuleBase):
-    module_id: int
+    module_status: int
+    signal_power: float | None
+    last_received_signal_date: datetime | None
+
+    class Config:
+        orm_mode = True
+
+
+class RSSIDataBase(BaseModel):
+    module_code: str
+    rssi: float
+    timestamp: str
+
+
+class RSSIData(RSSIDataBase):
+    pass
 
     class Config:
         orm_mode = True
