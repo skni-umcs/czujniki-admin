@@ -1,14 +1,12 @@
-from sqlalchemy import Integer, Column, String, ForeignKey
+from sqlalchemy import Float, Integer, Column, String, DateTime
 from src.database.core import Base
 
 
 class DBModule(Base):
     __tablename__ = 'Module'
-    module_id = Column(Integer, primary_key=True, autoincrement=True)
-    module_name = Column(String(100))
-    module_code = Column(String(100))
-    location = Column(String(1000))
-    is_active = Column(Integer)
-    is_deleted = Column(Integer)
-    signal_power = Column(Integer)
-    url = Column(String)
+    module_code = Column(String(100), unique=True, primary_key=True)
+    module_name = Column(String(100), unique=True)  # human-readable
+    module_location = Column(String(1000), unique=True)  # TODO: better way to store location (for graphing)
+    module_status = Column(Integer)
+    last_received_signal_date = Column(DateTime)
+    signal_power = Column(Float)
