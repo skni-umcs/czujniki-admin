@@ -13,11 +13,11 @@ oauth2_scheme = OAuth2AuthorizationCodeBearer(
 
 
 def decode_token(token: str) -> dict:
-    url = "http://keycloak:8080/realms/TestRealm/protocol/openid-connect/certs"
+    url = f"{settings.KEYCLOAK_SERVER_URL}/realms/{settings.KEYCLOAK_REALM}/protocol/openid-connect/certs"
     jwks_client = PyJWKClient(url)
     signing_key = jwks_client.get_signing_key_from_jwt(token)
     try:
-        payload = jwt.decode(token, signing_key.key, algorithms=[settings.KEYCLOAK_ALGO], audience=settings.KEYCLOAK_AUDIENCE)
+        payload = jwt.decode(token, signing_key.key, algorithms=[settings.KEYCLOAK_ALGO])
         return payload
     except JWTError as e:
         raise HTTPException(status_code=401, detail="Decoding error")
