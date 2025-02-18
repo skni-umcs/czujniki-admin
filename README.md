@@ -24,3 +24,20 @@ Service is integrated with Keycloak for authentication and authorization purpose
 ```bash
 docker-compose up -d 
 ```
+
+## .env file is required to run the service:
+```bash
+DB_HOST=[database host]
+DB_PORT=[database port]
+DB_USER=[database username]
+DB_PASSWORD=[database user password]
+DB_NAME= [database name]
+ROOT_PATH=[root path for the service, should be set to '/']
+KEYCLOAK_SERVER_URL=[keycloak server url]
+KEYCLOAK_REALM=[keycloak realm]
+KEYCLOAK_ALGO=[keycloak algorithm]
+MQTT_CLIENT=[mqtt client id]
+MQTT_BROKER=[mqtt broker url]
+MQTT_PORT=[mqtt broker port]
+MQTT_TOPIC=[mqtt topic]
+```

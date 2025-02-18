@@ -5,9 +5,9 @@ from config import Settings
 
 settings = Settings()
 
-# must be imported after settings creation (circular import)
 from .module import router as module_router
 from .user import routes as user_router
+from src.mqtt.mqtt_client import client as mqtt_client
 app = FastAPI(title="Sensors Admin Panel",
               description="Sensors Admin Panel is a web application for managing sensors",
               version="0.0.1-dev",

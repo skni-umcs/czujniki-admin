@@ -3,16 +3,24 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     app_name: str = "SensorsAdmin"
-    db_host: str = "db"
-    db_port: str = "5432"
-    db_user: str = "sensors"
-    db_password: str = "sensors"
-    db_name: str = "sensors"
-    root_path: str = "/"
-    KEYCLOAK_SERVER_URL: str = "https://sso.skni.umcs.pl"
-    KEYCLOAK_REALM: str = "SKNI"
-    KEYCLOAK_ALGO: str = "RS256"
+    DB_HOST: str
+    DB_PORT: int
+    DB_USER: str
+    DB_PASSWORD: str
+    DB_NAME: str
+    ROOT_PATH: str
+    KEYCLOAK_SERVER_URL: str
+    KEYCLOAK_REALM: str
+    KEYCLOAK_ALGO: str
+    MQTT_CLIENT: str
+    MQTT_BROKER: str
+    MQTT_PORT: str
+    MQTT_TOPIC: str
 
     @property
     def db_url(self) -> str:
-        return f"postgresql://{self.db_user}:{self.db_password}@{self.db_host}:{self.db_port}/{self.db_name}"
+        return f"postgresql://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+
+    class Config:
+        env_file = ".env"
+        env_file_encoding = "utf-8"
