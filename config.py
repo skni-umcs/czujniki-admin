@@ -10,15 +10,7 @@ class Settings(BaseSettings):
     db_name: str = "sensors"
     root_path: str = "/"
     KEYCLOAK_SERVER_URL: str = "https://sso.skni.umcs.pl"
-    KEYCLOAK_REALM: str = "Sensors"
-    KEYCLOAK_CLIENT_ID: str = "sensors"
-    KEYCLOAK_CLIENT_SECRET: str = "r01niQ9VfBT8lNGxFTgZsMkaU6NWwHu7"
-
-    # "account" worked, but I don't know where to get info about this
-    # value other than the token itself.
-    # maybe not needed at all ???
-    KEYCLOAK_AUDIENCE: str = "account"
-
+    KEYCLOAK_REALM: str = "SKNI"
     KEYCLOAK_ALGO: str = "RS256"
 
     @property

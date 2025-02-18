@@ -2,8 +2,6 @@ services:
   db:
     image: postgres
     restart: unless-stopped
-    networks:
-      - fast-network  # use same network as in keycloak container
     environment:
       - POSTGRES_PASSWORD=sensors
       - POSTGRES_USER=sensors
@@ -32,12 +30,6 @@ services:
       - "8000:8000"
     volumes:
       - .:/app
-    networks:
-      - fast-network  # use same network as in keycloak container
     depends_on:
       db:
         condition: service_healthy
-
-networks: # use same network as in keycloak container
-  fast-network:
-    external: true
