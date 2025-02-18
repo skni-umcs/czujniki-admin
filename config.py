@@ -9,16 +9,9 @@ class Settings(BaseSettings):
     db_password: str = "sensors"
     db_name: str = "sensors"
     root_path: str = "/"
-    KEYCLOAK_SERVER_URL: str = "keycloak-root-url"
-    KEYCLOAK_REALM: str = "realm-name"
-    KEYCLOAK_CLIENT_ID: str = "client-id"
-    KEYCLOAK_CLIENT_SECRET: str = "client-secret"
-
-    # "account" worked, but I don't know where to get info about this
-    # value other than the token itself.
-    KEYCLOAK_AUDIENCE: str = "keycloak-audience"
-
-    KEYCLOAK_ALGO: str = "keycloak-algorithm"
+    KEYCLOAK_SERVER_URL: str = "https://sso.skni.umcs.pl"
+    KEYCLOAK_REALM: str = "SKNI"
+    KEYCLOAK_ALGO: str = "RS256"
 
     @property
     def db_url(self) -> str:

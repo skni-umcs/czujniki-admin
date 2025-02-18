@@ -7,6 +7,8 @@ from src.auth.security import get_current_user
 
 api_router = APIRouter(prefix="/module", tags=["module"])
 
+# TODO: Add authentication to the endpoints
+
 
 @api_router.get("/", response_model=list[Module])
 async def get_modules(db: Session = Depends(get_db),):
