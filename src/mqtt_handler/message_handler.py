@@ -1,8 +1,10 @@
 import json
+import logging
 from datetime import datetime
 
 from src.dependecies import get_db
 from src.module.connector import unwrap_rssi
+from src.module.exceptions import ModuleNotFoundException
 
 
 def unwrap_message(payload:str):
@@ -12,4 +14,7 @@ def unwrap_message(payload:str):
     time = str(datetime.now())
     db = get_db()
     for module_code in module_codes:
-        unwrap_rssi(db, module_code, float(rssis.pop()), time)
+        try:
+            unwrap_rssi(db, module_code, float(rssis.pop()), time)
+        except ModuleNotFoundException as e:
+            logging.info("No module with said name, skipping...")

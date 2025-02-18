@@ -19,13 +19,13 @@ services:
       context: .
       dockerfile: Dockerfile
       target: dev
-    environment:
-      - DB_HOST=db
-      - DB_USER=sensors
-      - DB_PASSWORD=sensors
-      - DB_NAME=sensors
-      - DB_PORT=5432
-      - ROOT_PATH=/
+#    environment:
+#      - DB_HOST=db
+#      - DB_USER=sensors
+#      - DB_PASSWORD=sensors
+#      - DB_NAME=sensors
+#      - DB_PORT=5432
+#      - ROOT_PATH=/
     ports:
       - "8000:8000"
     volumes:
