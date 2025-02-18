@@ -3,8 +3,8 @@ import logging
 from datetime import datetime
 
 from src.dependecies import get_db
-from src.module.connector import unwrap_rssi
-from src.module.exceptions import ModuleNotFoundException
+from src.sensor.connector import unwrap_rssi
+from src.sensor.exceptions import SensorNotFoundException
 
 
 def unwrap_message(payload:str):
@@ -16,5 +16,5 @@ def unwrap_message(payload:str):
     for module_code in module_codes:
         try:
             unwrap_rssi(db, module_code, float(rssis.pop()), time)
-        except ModuleNotFoundException as e:
-            logging.info("No module with said name, skipping...")
+        except SensorNotFoundException as e:
+            logging.info("No sensor with said name, skipping...")

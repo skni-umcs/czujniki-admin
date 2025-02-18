@@ -2,24 +2,24 @@ from datetime import datetime
 from pydantic import BaseModel
 
 
-class ModuleBase(BaseModel):
-    module_code: str
-    module_name: str
-    module_location: str
+class SensorBase(BaseModel):
+    sensor_code: str
+    sensor_name: str
+    sensor_location: str
 
 
-class ModuleCreate(ModuleBase):
+class SensorCreate(SensorBase):
     pass
 
 
-class ModuleUpdate(BaseModel):
-    module_name: str | None
-    module_location: str | None
-    module_status: int | None
+class SensorUpdate(BaseModel):
+    sensor_name: str | None
+    sensor_location: str | None
+    sensor_status: int | None
 
 
-class Module(ModuleBase):
-    module_status: int
+class Sensor(SensorBase):
+    sensor_status: int
     signal_power: float | None
     last_received_signal_date: datetime | None
 
@@ -28,7 +28,7 @@ class Module(ModuleBase):
 
 
 class RSSIDataBase(BaseModel):
-    module_code: str
+    sensor_code: str
     rssi: float
     timestamp: str
 

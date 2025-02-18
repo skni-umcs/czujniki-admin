@@ -10,7 +10,7 @@ from src.mqtt_handler.message_handler import unwrap_message
 
 settings = Settings()
 
-from .module import router as module_router
+from .sensor import router as module_router
 from .user import routes as user_router
 
 logging.basicConfig(level=logging.INFO)
