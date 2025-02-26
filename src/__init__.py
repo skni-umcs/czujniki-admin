@@ -2,6 +2,7 @@ import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 from . import database as models
 from config import Settings
 import paho.mqtt.client as mqtt
@@ -21,7 +22,7 @@ def on_connect(client, userdata, flags, rc):
     logging.info(f"Subscribed to topic {settings.MQTT_TOPIC}")
 
 def on_message(client, userdata, msg):
-    logging.info(f"Received mqtt_handler message from topic {msg.topic}")
+    logging.info(f"Received message from topic {msg.topic}")
     try:
         unwrap_message(msg.payload.decode())
     except Exception as e:
@@ -38,8 +39,8 @@ client.on_publish = on_publish
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logging.info("Starting mqtt_handler client...")
-    client.loop_start()
     client.connect(settings.MQTT_BROKER, int(settings.MQTT_PORT), 60)
+    client.loop_start()
     yield
     logging.info("Stopping mqtt_handler client...")
     client.loop_stop()

@@ -2,7 +2,7 @@
 
 This project is a backend service for controlling modules 
 
-Module model contains basic info:
+Sensor model contains basic info:
  - UUID
  - Human-readable name (assigned by admin user while adding a module)
  - Location (geo coordinates + faculty name)
@@ -10,19 +10,22 @@ Module model contains basic info:
  - Last timestamp of received information
  - Signal Power
 
-This Backend gives the ability to:
-- Add new modules 
-- Remove modules
-- Update modules (eg. deactivate, change name)
-
 It also stores information about signal power for each module (with timestamp).
 
-Service is integrated with Keycloak for authentication and authorization purposes.
+## What is used
+- **MQTT** - background listener waiting for gateway information about sensors
+- **Keycloak** - OAuth for authentication and authorization
 
 ## How to run
 
 ```bash
 docker-compose up -d 
+```
+
+## Docs
+If run locally, whole API can be seen here:
+```
+localhost:8000/docs#
 ```
 
 ## .env file is required to run the service:
@@ -41,3 +44,4 @@ MQTT_BROKER=[mqtt broker url]
 MQTT_PORT=[mqtt broker port]
 MQTT_TOPIC=[mqtt topic]
 ```
+
