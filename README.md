@@ -3,12 +3,14 @@
 This project is a backend service for controlling modules 
 
 Sensor model contains basic info:
- - UUID
+ - Sensor Code (Working as UUID)
  - Human-readable name (assigned by admin user while adding a module)
  - Location (geo coordinates + faculty name)
- - State (active/inactive/error)
- - Last timestamp of received information
+ - State (active/inactive/error) 
  - Signal Power
+ - CPU temperature
+ - Sensor noise
+ - Timestamp of lastly received data
 
 It also stores information about signal power for each module (with timestamp).
 
@@ -27,6 +29,17 @@ If run locally, whole API can be seen here:
 ```
 localhost:8000/docs#
 ```
+
+## Valid MQTT message format
+```json
+{
+    "sensor_code": "string",
+    "rssi": 0,
+    "cpu_temp": 0,
+    "sensor_noise": 0
+}
+```
+### Right now partially filled messages will not be processed.
 
 ## .env file is required to run the service:
 ```bash
