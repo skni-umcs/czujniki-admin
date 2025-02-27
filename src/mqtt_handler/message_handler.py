@@ -1,11 +1,6 @@
 import json
 import logging
-from datetime import datetime
 from src.database.core import get_db_session
-from src.sensor.connector import unwrap_rssi, update_sensor_by_index
-from src.sensor.exceptions import SensorNotFoundException
-from src.sensor.schemas import SensorUpdate
-
 
 def unwrap_message(payload:str):
     try:
