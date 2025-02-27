@@ -1,35 +1,44 @@
 from datetime import datetime
 
 from .models import DBSensor
-from .exceptions import (SensorNotFoundException, SensorNameTakenException, LocationTakenException,
-                         ReceivedRSSIFromNotActiveSensorException, SensorCodeTakenException, BadDateTimeFormatException)
+from .exceptions import (SensorNotFoundException, SensorNameTakenException,
+                         SensorCodeTakenException,
+                         SensorLocationTakenException)
 from sqlalchemy.orm import Session
-from .schemas import SensorCreate, SensorUpdate
-
 
 def get_all_sensors(db: Session) -> list[DBSensor]:
     sensors = db.query(DBSensor).all()
     return sensors
 
+def create_new_sensor(db: Session,
+                  sensor_code: str,
+                  sensor_name: str,
+                  sensor_location: str) ->DBSensor:
 
-def create_new_sensor(db: Session, sensor_to_add: SensorCreate) -> DBSensor:
+    sensor_with_code = db.query(DBSensor).filter(DBSensor.sensor_code == sensor_code).first()
 
-    code_err = db.query(DBSensor).filter(DBSensor.sensor_code == sensor_to_add.sensor_code).first()
-
-    if code_err is not None:
+    if sensor_with_code:
         raise SensorCodeTakenException
 
-    new_sensor = DBSensor(
-                        sensor_code=sensor_to_add.sensor_code,
-                        sensor_name=sensor_to_add.sensor_name,
-                        sensor_location=sensor_to_add.sensor_location,
-                        sensor_status=1)
+    sensor_with_name = db.query(DBSensor).filter(DBSensor.sensor_name == sensor_name).first()
 
-    db.add(new_sensor)
+    if sensor_with_name:
+        raise SensorNameTakenException
+
+    sensor_with_location = db.query(DBSensor).filter(sensor_location == sensor_location).first()
+
+    if sensor_with_location:
+        raise SensorLocationTakenException
+
+    sensor = DBSensor(sensor_code=sensor_code,
+                      sensor_name=sensor_name,
+                      sensor_location=sensor_location,
+                      sensor_status=1)
+
+    db.add(sensor)
     db.commit()
 
-    return new_sensor
-
+    return sensor
 
 def get_sensor_by_code(db: Session, sensor_code: str) -> DBSensor:
     sensor = db.query(DBSensor).filter(DBSensor.sensor_code == sensor_code).first()
@@ -39,47 +48,53 @@ def get_sensor_by_code(db: Session, sensor_code: str) -> DBSensor:
 
     return sensor
 
-
-def update_sensor_by_index(db: Session, sensor_code: str, updated_sensor: SensorUpdate) -> DBSensor:
-    sensor_to_update: DBSensor = db.query(DBSensor).filter(DBSensor.sensor_code == sensor_code).first()
-
-    if sensor_to_update is None:
+def update_sensor_info(db: Session,
+                       sensor_code: str,
+                       sensor_name: str | None,
+                       sensor_location: str | None) ->DBSensor:
+    try:
+        sensor = get_sensor_by_code(db,sensor_code)
+    except SensorNotFoundException:
         raise SensorNotFoundException
 
-    if updated_sensor.sensor_name is not None:
-        name_err = db.query(DBSensor).filter(DBSensor.sensor_name == updated_sensor.sensor_name).first()
-        if name_err is not None:
-            raise SensorNameTakenException
-        sensor_to_update.sensor_name = updated_sensor.sensor_name
+    if sensor_name:
+        sensor_with_name = db.query(DBSensor).filter(DBSensor.sensor_name == sensor_name).first()
 
-    if updated_sensor.sensor_location is not None:
-        location_err = db.query(DBSensor).filter(DBSensor.sensor_location == updated_sensor.sensor_location).first()
-        if location_err is not None:
-            raise LocationTakenException
-        sensor_to_update.sensor_location = updated_sensor.sensor_location
-    if updated_sensor.sensor_status is not None:
-        sensor_to_update.sensor_status = updated_sensor.sensor_status
+        if sensor_with_name:
+            raise SensorNameTakenException
+        sensor.sensor_name = sensor_name
+    if sensor_location:
+        sensor_with_location = db.query(DBSensor).filter(sensor_location == sensor_location).first()
+
+        if sensor_with_location:
+            raise SensorLocationTakenException
+        sensor.sensor_location = sensor_location
 
     db.commit()
 
-    return sensor_to_update
+    return sensor
 
-
-def unwrap_rssi(db: Session, sensor_code: str, rssi: float, timestamp: str):
-    sensor = db.query(DBSensor).filter(DBSensor.sensor_code == sensor_code).first()
+def delete_sensor_by_code(db: Session,
+                          sensor_code: str):
+    sensor = get_sensor_by_code(db,sensor_code)
 
     if sensor is None:
         raise SensorNotFoundException
 
-    if sensor.sensor_status == 0:
-        raise ReceivedRSSIFromNotActiveSensorException
+    db.delete(sensor)
+    db.commit()
 
-    sensor.signal_power = rssi
-
-    try:
-        sensor.last_received_signal_date = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
-    except ValueError:
-        raise BadDateTimeFormatException
+# this method should only be called by mqtt message handler!
+def update_sensor_data(db: Session,
+                       sensor_code: str,
+                       new_rssi: float,
+                       new_cpu_temp: int,
+                       new_noise: int):
+    sensor = get_sensor_by_code(db,sensor_code)
+    sensor.last_rssi = new_rssi
+    sensor.last_cpu_temp = new_cpu_temp
+    sensor.last_sensor_noise = new_noise
+    sensor.last_info_timestamp = datetime.now()
 
     db.commit()
-    return sensor
+

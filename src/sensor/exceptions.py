@@ -16,19 +16,8 @@ class SensorNameTakenException(Exception):
         super().__init__(self.message)
 
 
-class LocationTakenException(Exception):
+class SensorLocationTakenException(Exception):
     def __init__(self):
         self.message = "There is already a sensor in this location."
         super().__init__(self.message)
 
-
-class ReceivedRSSIFromNotActiveSensorException(Exception):
-    def __init__(self):
-        self.message = "Received RSSI from sensor marked as inactive."
-        super().__init__(self.message)
-
-
-class BadDateTimeFormatException(Exception):
-    def __init__(self):
-        self.message = "Bad date-time format. Use %Y-%m-%d %H:%M:%S format."
-        super().__init__(self.message)
