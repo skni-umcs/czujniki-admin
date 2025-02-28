@@ -6,6 +6,8 @@ from .exceptions import SensorNotFoundException, SensorLocationTakenException, S
     SensorCodeTakenException
 from .schemas import Sensor, SensorCreate, SensorDataOnly, SensorInfoUpdate, SensorInfoOnly
 from src.auth.security import get_current_user
+from ..logs.logger import Logger
+from ..user.models import DBUser
 
 api_router = APIRouter(prefix="/sensor", tags=["sensor"])
 
@@ -14,14 +16,14 @@ async def get_sensors_full_info(db: Session = Depends(get_db), current_user = De
     return get_all_sensors(db)
 
 @api_router.post("/", response_model=Sensor)
-async def add_sensor(new_sensor: SensorCreate, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
+async def add_sensor(new_sensor: SensorCreate, db: Session = Depends(get_db), current_user: DBUser = Depends(get_current_user)):
     try:
         created_sensor = create_new_sensor(db, new_sensor.sensor_code,new_sensor.sensor_name, new_sensor.sensor_location)
     except SensorNotFoundException as e:
         raise HTTPException(404, str(e))
     except (SensorLocationTakenException, SensorNameTakenException, SensorCodeTakenException) as e:
         raise HTTPException(409, str(e))
-
+    Logger.write(f"New sensor added: {created_sensor.sensor_code} by {current_user.login}")
     return created_sensor
 
 @api_router.put("/", response_model=Sensor)
@@ -35,11 +37,12 @@ async def update_sensor_info_by_code(new_info: SensorInfoUpdate, db: Session = D
     return updated_sensor
 
 @api_router.delete("/{sensor_code}")
-async def delete_sensor(sensor_code: str, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
+async def delete_sensor(sensor_code: str, db: Session = Depends(get_db), current_user: DBUser = Depends(get_current_user)):
     try:
         delete_sensor_by_code(db, sensor_code)
     except SensorNotFoundException as e:
         raise HTTPException(404, str(e))
+    Logger.write(f"Sensor deleted: {sensor_code} by {current_user.login}")
     return {"message": "Sensor deleted successfully!"}
 
 @api_router.get("/{sensor_code}", response_model=Sensor)

@@ -13,6 +13,7 @@ settings = Settings()
 
 from .sensor import router as module_router
 from .user import routes as user_router
+from .logs import routes as logs_router
 
 logging.basicConfig(level=logging.INFO)
 
@@ -62,3 +63,4 @@ app.add_middleware(
 
 app.include_router(module_router.api_router)
 app.include_router(user_router.router)
+app.include_router(logs_router.router)
