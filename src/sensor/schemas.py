@@ -8,10 +8,12 @@ class SensorBase(BaseModel):
 class SensorCreate(SensorBase):
     sensor_name: str
     sensor_location: str
+    sensor_frequency: int
 
 class SensorInfoUpdate(SensorBase):
-    sensor_name: str | None
-    sensor_location: str | None
+    sensor_name: str | None = None
+    sensor_location: str | None = None
+    sensor_frequency: int | None = None
 
 class SensorInfoOnly(SensorCreate):
     pass

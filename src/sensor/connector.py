@@ -11,9 +11,10 @@ def get_all_sensors(db: Session) -> list[DBSensor]:
     return sensors
 
 def create_new_sensor(db: Session,
-                  sensor_code: str,
-                  sensor_name: str,
-                  sensor_location: str) ->DBSensor:
+                      sensor_code: str,
+                      sensor_name: str,
+                      sensor_location: str,
+                      sensor_frequency: int) ->DBSensor:
 
     sensor_with_code = db.query(DBSensor).filter(DBSensor.sensor_code == sensor_code).first()
 
@@ -33,7 +34,8 @@ def create_new_sensor(db: Session,
     sensor = DBSensor(sensor_code=sensor_code,
                       sensor_name=sensor_name,
                       sensor_location=sensor_location,
-                      sensor_status=1)
+                      sensor_status=1,
+                      sensor_frequency=sensor_frequency)
 
     db.add(sensor)
     db.commit()
@@ -51,7 +53,8 @@ def get_sensor_by_code(db: Session, sensor_code: str) -> DBSensor:
 def update_sensor_info(db: Session,
                        sensor_code: str,
                        sensor_name: str | None,
-                       sensor_location: str | None) ->DBSensor:
+                       sensor_location: str | None,
+                       sensor_frequency: int | None) ->DBSensor:
     try:
         sensor = get_sensor_by_code(db,sensor_code)
     except SensorNotFoundException:
@@ -70,8 +73,10 @@ def update_sensor_info(db: Session,
             raise SensorLocationTakenException
         sensor.sensor_location = sensor_location
 
-    db.commit()
+    if sensor_frequency:
+        sensor.sensor_frequency = sensor_frequency
 
+    db.commit()
     return sensor
 
 def delete_sensor_by_code(db: Session,

@@ -18,7 +18,7 @@ async def get_sensors_full_info(db: Session = Depends(get_db), current_user = De
 @api_router.post("/", response_model=Sensor)
 async def add_sensor(new_sensor: SensorCreate, db: Session = Depends(get_db), current_user: DBUser = Depends(get_current_user)):
     try:
-        created_sensor = create_new_sensor(db, new_sensor.sensor_code,new_sensor.sensor_name, new_sensor.sensor_location)
+        created_sensor = create_new_sensor(db, new_sensor.sensor_code,new_sensor.sensor_name, new_sensor.sensor_location, new_sensor.sensor_frequency)
     except SensorNotFoundException as e:
         raise HTTPException(404, str(e))
     except (SensorLocationTakenException, SensorNameTakenException, SensorCodeTakenException) as e:
@@ -29,7 +29,7 @@ async def add_sensor(new_sensor: SensorCreate, db: Session = Depends(get_db), cu
 @api_router.put("/", response_model=Sensor)
 async def update_sensor_info_by_code(new_info: SensorInfoUpdate, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
     try:
-        updated_sensor = update_sensor_info(db,new_info.sensor_code,new_info.sensor_name, new_info.sensor_location)
+        updated_sensor = update_sensor_info(db,new_info.sensor_code,new_info.sensor_name, new_info.sensor_location, new_info.sensor_frequency)
     except SensorNotFoundException as e:
         raise HTTPException(404, str(e))
     except (SensorLocationTakenException, SensorNameTakenException) as e:

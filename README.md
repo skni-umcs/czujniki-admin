@@ -7,6 +7,7 @@ Sensor model contains basic info:
  - Human-readable name (assigned by admin user while adding a module)
  - Location (geo coordinates + faculty name)
  - State (active/inactive/error) 
+ - Frequency of sending data
  - Signal Power
  - CPU temperature
  - Sensor noise
