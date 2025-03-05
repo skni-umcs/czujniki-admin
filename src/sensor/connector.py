@@ -26,7 +26,7 @@ def create_new_sensor(db: Session,
     if sensor_with_name:
         raise SensorNameTakenException
 
-    sensor_with_location = db.query(DBSensor).filter(sensor_location == sensor_location).first()
+    sensor_with_location = db.query(DBSensor).filter(DBSensor.sensor_location == sensor_location).first()
 
     if sensor_with_location:
         raise SensorLocationTakenException
@@ -67,7 +67,7 @@ def update_sensor_info(db: Session,
             raise SensorNameTakenException
         sensor.sensor_name = sensor_name
     if sensor_location:
-        sensor_with_location = db.query(DBSensor).filter(sensor_location == sensor_location).first()
+        sensor_with_location = db.query(DBSensor).filter(DBSensor.sensor_location == sensor_location).first()
 
         if sensor_with_location:
             raise SensorLocationTakenException
