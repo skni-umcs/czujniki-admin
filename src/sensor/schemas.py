@@ -10,6 +10,9 @@ class SensorCreate(SensorBase):
     sensor_location: str
     sensor_frequency: int
 
+class SensorFrequencyOnly(SensorBase):
+    sensor_frequency: int
+
 class SensorInfoUpdate(SensorBase):
     sensor_name: str | None = None
     sensor_location: str | None = None

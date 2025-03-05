@@ -4,7 +4,7 @@ from src.database.core import get_db
 from .connector import get_all_sensors, create_new_sensor, get_sensor_by_code, update_sensor_info, delete_sensor_by_code
 from .exceptions import SensorNotFoundException, SensorLocationTakenException, SensorNameTakenException, \
     SensorCodeTakenException
-from .schemas import Sensor, SensorCreate, SensorDataOnly, SensorInfoUpdate, SensorInfoOnly
+from .schemas import Sensor, SensorCreate, SensorDataOnly, SensorInfoUpdate, SensorInfoOnly, SensorFrequencyOnly
 from src.auth.security import get_current_user
 from ..logs.logger import Logger
 from ..user.models import DBUser
@@ -36,6 +36,11 @@ async def update_sensor_info_by_code(new_info: SensorInfoUpdate, db: Session = D
         raise HTTPException(409, str(e))
     return updated_sensor
 
+@api_router.get("/frequencies", response_model=list[SensorFrequencyOnly])
+async def get_sensors_frequnecies(db: Session = Depends(get_db), current_user = Depends(get_current_user)):
+    sensors = get_all_sensors(db)
+    return sensors
+
 @api_router.delete("/{sensor_code}")
 async def delete_sensor(sensor_code: str, db: Session = Depends(get_db), current_user: DBUser = Depends(get_current_user)):
     try:
@@ -53,6 +58,8 @@ async def get_sensor(sensor_code: str, db: Session = Depends(get_db), current_us
         raise HTTPException(404, str(e))
     return sensor
 
+
+
 @api_router.get("/{sensor_code}/data", response_model=SensorDataOnly)
 async def get_sensor_data(sensor_code: str, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
     try:
@@ -68,3 +75,5 @@ async def get_sensor_info(sensor_code: str, db: Session = Depends(get_db), curre
     except SensorNotFoundException as e:
         raise HTTPException(404, str(e))
     return sensor
+
+
