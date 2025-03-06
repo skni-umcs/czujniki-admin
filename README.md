@@ -1,46 +1,41 @@
-# Backend for controlling modules with sensors
+# Administration Service for Sensors
 
-This project is a backend service for controlling modules 
+### This service is responsible for managing sensors and storing various technical information.
 
-Sensor model contains basic info:
- - Sensor Code (Working as UUID)
- - Human-readable name (assigned by admin user while adding a module)
- - Location (geo coordinates + faculty name)
- - State (active/inactive/error) 
- - Frequency of sending data
- - Signal Power
- - CPU temperature
- - Sensor noise
- - Timestamp of lastly received data
-
-It also stores information about signal power for each module (with timestamp).
-
-## What is used
-- **MQTT** - background listener waiting for gateway information about sensors
-- **Keycloak** - OAuth for authentication and authorization
-
-## How to run
+## How to run and test
 
 ```bash
-docker-compose up -d 
+docker compose up -d 
 ```
 
-## Docs
-If run locally, whole API can be seen here:
+locally, whole API can be seen here:
 ```
 localhost:8000/docs#
 ```
 
-## Valid MQTT message format
+# What is used
+## MQTT
+MQTT is used for a two-way communication between the service and gateway.
+### Valid MQTT messages received by service
+#### Sensor Data
 ```json
 {
-    "sensor_code": "string",
+    "sensor_id": "string",
     "rssi": 0,
     "cpu_temp": 0,
     "sensor_noise": 0
 }
 ```
-### Right now partially filled messages will not be processed.
+Right now, partially filled messages will not be processed.
+
+### MQTT messages send by service
+#### New frequency for sensor
+```json
+{
+    "sensor_id": "string",
+    "new_frequencies": 0
+}
+```
 
 ## .env file is required to run the service:
 ```bash
@@ -59,4 +54,27 @@ MQTT_PORT=[mqtt broker port]
 MQTT_TOPIC_RECEIVE=[mqtt topic for receiving data]
 MQTT_TOPIC_SEND=[mqtt topic for sending data]
 ```
+
+# Technical stuff
+## Database Models
+### Sensor:
+ - Sensor Code (Working as UUID)
+ - Human-readable name (assigned by admin user while adding a module)
+ - Location (geo coordinates + faculty name) 
+ - State (active/inactive/error) 
+ - Frequency of sending data
+ - Signal Power
+ - CPU temperature
+ - Sensor noise
+ - Timestamp of lastly received data
+
+### User:
+ - UUID
+ - Keycloak ID: ID from Keycloak
+ - Login: User login received from Keycloak
+
+### Log:
+ - Timestamp
+ - Message
+
 

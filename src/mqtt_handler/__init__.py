@@ -30,7 +30,6 @@ client.on_message = on_message
 client.on_publish = on_publish
 
 def publish_message(message: dict):
-    message["sender"] = settings.MQTT_CLIENT
     message = json.dumps(message)
     client.publish(settings.MQTT_TOPIC_SEND, message)
 
@@ -41,13 +40,10 @@ def unwrap_message(payload:str):
         logging.info(e)
         return
 
-    if message.get('sender') == settings.MQTT_CLIENT:
-        return
-
     logging.info(f"Received message: {message}")
 
     # keys might finally be different, keep in mind
-    sensor_code = message.get('sensor_code')
+    sensor_code = message.get('sensor_id')
     new_rssi = message.get('rssi')
     new_cpu_temp = message.get('cpu_temp')
     new_sensor_noise = message.get('sensor_noise')

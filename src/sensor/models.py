@@ -4,7 +4,7 @@ from src.database.core import Base
 
 class DBSensor(Base):
     __tablename__ = 'sensors'
-    sensor_code = Column(String(100), unique=True, primary_key=True)
+    sensor_code = Column(String(100), unique=True, primary_key=True) # TODO: Refactor to sensor_id
     sensor_name = Column(String(100), unique=True)  # human-readable (maybe not needed?)
     sensor_location = Column(String(1000), unique=True)
     sensor_status = Column(Integer)
