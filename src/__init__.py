@@ -18,11 +18,11 @@ logging.basicConfig(level=logging.INFO)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logging.info("Starting mqtt_handler client...")
+    logging.info("Starting MQTT client...")
     client.connect(settings.MQTT_BROKER, int(settings.MQTT_PORT),60)
     client.loop_start()
     yield
-    logging.info("Stopping mqtt_handler client...")
+    logging.info("Stopping MQTT client...")
     client.loop_stop()
     client.disconnect()
 

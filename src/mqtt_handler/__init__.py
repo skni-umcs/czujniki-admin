@@ -6,22 +6,35 @@ from src.database.core import get_db_session
 from src.sensor.connector import update_sensor_data
 
 settings = Settings()
+client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1, settings.MQTT_CLIENT)
 
 def on_connect(client, userdata, flags, rc):
-    logging.info(f"Connected with result code {rc}")
-    client.subscribe(settings.MQTT_TOPIC)
-    logging.info(f"Subscribed to topic {settings.MQTT_TOPIC}")
+    logging.info(f"Connected to MQTT broker with result code {rc}")
+    client.subscribe(settings.MQTT_TOPIC_SEND)
+    client.subscribe(settings.MQTT_TOPIC_RECEIVE)
+    logging.info(f"MQTT ready for send and receive")
 
 def on_message(client, userdata, msg):
+    if msg.topic != settings.MQTT_TOPIC_RECEIVE:
+        return
     try:
-        unwrap_message(msg.payload.decode(),msg.topic)
+        unwrap_message(msg.payload.decode())
     except Exception as e:
         logging.error(f"Error while unwrapping message: {e}")
 
 def on_publish(client, userdata, mid):
-    logging.info(f"Published message in topic {settings.MQTT_TOPIC}")
+    logging.info(f"Published message in topic {settings.MQTT_TOPIC_SEND}")
 
-def unwrap_message(payload:str,topic: str):
+client.on_connect = on_connect
+client.on_message = on_message
+client.on_publish = on_publish
+
+def publish_message(message: dict):
+    message["sender"] = settings.MQTT_CLIENT
+    message = json.dumps(message)
+    client.publish(settings.MQTT_TOPIC_SEND, message)
+
+def unwrap_message(payload:str):
     try:
         message = json.loads(payload)
     except Exception as e:
@@ -42,15 +55,4 @@ def unwrap_message(payload:str,topic: str):
     with get_db_session() as db:
         update_sensor_data(db,sensor_code,new_rssi,new_cpu_temp,new_sensor_noise)
 
-client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1, settings.MQTT_CLIENT)
-client.on_connect = on_connect
-client.on_message = on_message
-client.on_publish = on_publish
 
-
-
-def publish_message(message: dict):
-    message["sender"] = settings.MQTT_CLIENT
-    message = json.dumps(message)
-    logging.info(f"Publishing message to topic {settings.MQTT_TOPIC}")
-    client.publish(settings.MQTT_TOPIC, message)

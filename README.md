@@ -56,6 +56,7 @@ KEYCLOAK_ALGO=[keycloak algorithm]
 MQTT_CLIENT=[mqtt client id]
 MQTT_BROKER=[mqtt broker url]
 MQTT_PORT=[mqtt broker port]
-MQTT_TOPIC=[mqtt topic]
+MQTT_TOPIC_RECEIVE=[mqtt topic for receiving data]
+MQTT_TOPIC_SEND=[mqtt topic for sending data]
 ```
 

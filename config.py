@@ -15,7 +15,8 @@ class Settings(BaseSettings):
     MQTT_CLIENT: str
     MQTT_BROKER: str
     MQTT_PORT: str
-    MQTT_TOPIC: str
+    MQTT_TOPIC_RECEIVE: str
+    MQTT_TOPIC_SEND: str
 
     @property
     def db_url(self) -> str:
