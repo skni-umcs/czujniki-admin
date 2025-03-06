@@ -1,5 +1,7 @@
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends, HTTPException
+from src.mqtt_handler import publish_message
+from config import Settings
 from src.database.core import get_db
 from .connector import get_all_sensors, create_new_sensor, get_sensor_by_code, update_sensor_info, delete_sensor_by_code
 from .exceptions import SensorNotFoundException, SensorLocationTakenException, SensorNameTakenException, \
@@ -10,6 +12,7 @@ from ..logs.logger import Logger
 from ..user.models import DBUser
 
 api_router = APIRouter(prefix="/sensor", tags=["sensor"])
+settings = Settings()
 
 @api_router.get("/", response_model=list[Sensor])
 async def get_sensors_full_info(db: Session = Depends(get_db), current_user = Depends(get_current_user)):
@@ -34,7 +37,13 @@ async def update_sensor_info_by_code(new_info: SensorInfoUpdate, db: Session = D
         raise HTTPException(404, str(e))
     except (SensorLocationTakenException, SensorNameTakenException) as e:
         raise HTTPException(409, str(e))
+
+    if new_info.sensor_frequency:
+        message_dict = {'sensor_id': new_info.sensor_code, 'sensor_frequency': new_info.sensor_frequency}
+        publish_message(message_dict)
+
     return updated_sensor
+
 
 @api_router.get("/frequencies", response_model=list[SensorFrequencyOnly])
 async def get_sensors_frequnecies(db: Session = Depends(get_db), current_user = Depends(get_current_user)):

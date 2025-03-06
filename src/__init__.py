@@ -6,9 +6,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from . import database as models
 from config import Settings
 
-from src.mqtt_handler.message_handler import unwrap_message
-from src.mqtt_handler.mqtt_client import client
+from src.mqtt_handler import client
 settings = Settings()
+
 
 from .sensor import router as module_router
 from .user import routes as user_router
