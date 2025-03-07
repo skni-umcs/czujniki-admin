@@ -3,7 +3,7 @@ from datetime import datetime
 from .models import DBSensor
 from .exceptions import (SensorNotFoundException, SensorNameTakenException,
                          SensorCodeTakenException,
-                         SensorLocationTakenException)
+                         SensorLocationTakenException, SensorFrequencyNotWithinLimit)
 from sqlalchemy.orm import Session
 
 def get_all_sensors(db: Session) -> list[DBSensor]:
@@ -30,6 +30,9 @@ def create_new_sensor(db: Session,
 
     if sensor_with_location:
         raise SensorLocationTakenException
+
+    if sensor_frequency > 3600 or sensor_frequency < 5:
+        raise SensorFrequencyNotWithinLimit
 
     sensor = DBSensor(sensor_code=sensor_code,
                       sensor_name=sensor_name,
@@ -66,6 +69,7 @@ def update_sensor_info(db: Session,
         if sensor_with_name:
             raise SensorNameTakenException
         sensor.sensor_name = sensor_name
+
     if sensor_location:
         sensor_with_location = db.query(DBSensor).filter(DBSensor.sensor_location == sensor_location).first()
 
@@ -73,7 +77,9 @@ def update_sensor_info(db: Session,
             raise SensorLocationTakenException
         sensor.sensor_location = sensor_location
 
-    if sensor_frequency:
+    if sensor_frequency is not None:
+        if sensor_frequency > 3600 or sensor_frequency < 5:
+            raise SensorFrequencyNotWithinLimit
         sensor.sensor_frequency = sensor_frequency
 
     db.commit()

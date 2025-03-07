@@ -5,7 +5,7 @@ from config import Settings
 from src.database.core import get_db
 from .connector import get_all_sensors, create_new_sensor, get_sensor_by_code, update_sensor_info, delete_sensor_by_code
 from .exceptions import SensorNotFoundException, SensorLocationTakenException, SensorNameTakenException, \
-    SensorCodeTakenException
+    SensorCodeTakenException, SensorFrequencyNotWithinLimit
 from .schemas import Sensor, SensorCreate, SensorDataOnly, SensorInfoUpdate, SensorInfoOnly, SensorFrequencyOnly
 from src.auth.security import get_current_user
 from ..logs.logger import Logger
@@ -26,6 +26,8 @@ async def add_sensor(new_sensor: SensorCreate, db: Session = Depends(get_db), cu
         raise HTTPException(404, str(e))
     except (SensorLocationTakenException, SensorNameTakenException, SensorCodeTakenException) as e:
         raise HTTPException(409, str(e))
+    except SensorFrequencyNotWithinLimit as e:
+        raise HTTPException(400, str(e))
     Logger.write(f"New sensor added: {created_sensor.sensor_code} by {current_user.login}")
     return created_sensor
 
@@ -37,6 +39,8 @@ async def update_sensor_info_by_code(new_info: SensorInfoUpdate, db: Session = D
         raise HTTPException(404, str(e))
     except (SensorLocationTakenException, SensorNameTakenException) as e:
         raise HTTPException(409, str(e))
+    except SensorFrequencyNotWithinLimit as e:
+        raise HTTPException(400, str(e))
 
     if new_info.sensor_frequency:
         message_dict = {'sensor_id': new_info.sensor_code, 'sensor_frequency': new_info.sensor_frequency}
@@ -84,5 +88,6 @@ async def get_sensor_info(sensor_code: str, db: Session = Depends(get_db), curre
     except SensorNotFoundException as e:
         raise HTTPException(404, str(e))
     return sensor
+
 
 
