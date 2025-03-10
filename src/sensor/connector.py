@@ -2,7 +2,7 @@ from datetime import datetime
 
 from .models import DBSensor
 from .exceptions import (SensorNotFoundException, SensorNameTakenException,
-                         SensorCodeTakenException,
+                         SensorIdTakenException,
                          SensorLocationTakenException, SensorFrequencyNotWithinLimit)
 from sqlalchemy.orm import Session
 
@@ -11,15 +11,15 @@ def get_all_sensors(db: Session) -> list[DBSensor]:
     return sensors
 
 def create_new_sensor(db: Session,
-                      sensor_code: str,
+                      sensor_id: str,
                       sensor_name: str,
                       sensor_location: str,
                       sensor_frequency: int) ->DBSensor:
 
-    sensor_with_code = db.query(DBSensor).filter(DBSensor.sensor_code == sensor_code).first()
+    sensor_with_code = db.query(DBSensor).filter(DBSensor.sensor_id == sensor_id).first()
 
     if sensor_with_code:
-        raise SensorCodeTakenException
+        raise SensorIdTakenException
 
     sensor_with_name = db.query(DBSensor).filter(DBSensor.sensor_name == sensor_name).first()
 
@@ -34,7 +34,7 @@ def create_new_sensor(db: Session,
     if sensor_frequency > 3600 or sensor_frequency < 5:
         raise SensorFrequencyNotWithinLimit
 
-    sensor = DBSensor(sensor_code=sensor_code,
+    sensor = DBSensor(sensor_id=sensor_id,
                       sensor_name=sensor_name,
                       sensor_location=sensor_location,
                       sensor_status=1,
@@ -45,8 +45,8 @@ def create_new_sensor(db: Session,
 
     return sensor
 
-def get_sensor_by_code(db: Session, sensor_code: str) -> DBSensor:
-    sensor = db.query(DBSensor).filter(DBSensor.sensor_code == sensor_code).first()
+def get_sensor_by_code(db: Session, sensor_id: str) -> DBSensor:
+    sensor = db.query(DBSensor).filter(DBSensor.sensor_id == sensor_id).first()
 
     if sensor is None:
         raise SensorNotFoundException
@@ -54,12 +54,12 @@ def get_sensor_by_code(db: Session, sensor_code: str) -> DBSensor:
     return sensor
 
 def update_sensor_info(db: Session,
-                       sensor_code: str,
+                       sensor_id: str,
                        sensor_name: str | None,
                        sensor_location: str | None,
                        sensor_frequency: int | None) ->DBSensor:
     try:
-        sensor = get_sensor_by_code(db,sensor_code)
+        sensor = get_sensor_by_code(db,sensor_id)
     except SensorNotFoundException:
         raise SensorNotFoundException
 
@@ -86,8 +86,8 @@ def update_sensor_info(db: Session,
     return sensor
 
 def delete_sensor_by_code(db: Session,
-                          sensor_code: str):
-    sensor = get_sensor_by_code(db,sensor_code)
+                          sensor_id: str):
+    sensor = get_sensor_by_code(db,sensor_id)
 
     if sensor is None:
         raise SensorNotFoundException
@@ -97,11 +97,11 @@ def delete_sensor_by_code(db: Session,
 
 # this method should only be called by mqtt message handler!
 def update_sensor_data(db: Session,
-                       sensor_code: str,
+                       sensor_id: str,
                        new_rssi: float,
                        new_cpu_temp: int,
                        new_noise: int):
-    sensor = get_sensor_by_code(db,sensor_code)
+    sensor = get_sensor_by_code(db,sensor_id)
     sensor.last_rssi = new_rssi
     sensor.last_cpu_temp = new_cpu_temp
     sensor.last_sensor_noise = new_noise

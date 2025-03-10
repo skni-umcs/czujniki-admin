@@ -4,9 +4,9 @@ class SensorNotFoundException(Exception):
         super().__init__(self.message)
 
 
-class SensorCodeTakenException(Exception):
+class SensorIdTakenException(Exception):
     def __init__(self):
-        self.message = "Sensor with this code already exists in the database."
+        self.message = "Sensor with this id already exists in the database."
         super().__init__(self.message)
 
 

@@ -3,7 +3,7 @@ from pydantic import BaseModel
 
 
 class SensorBase(BaseModel):
-    sensor_code: str
+    sensor_id: str
 
 class SensorCreate(SensorBase):
     sensor_name: str
