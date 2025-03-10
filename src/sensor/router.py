@@ -43,7 +43,7 @@ async def update_sensor_info_by_code(new_info: SensorInfoUpdate, db: Session = D
         raise HTTPException(400, str(e))
 
     if new_info.sensor_frequency:
-        message_dict = {'sensor_id': new_info.sensor_id, 'sensor_frequency': new_info.sensor_frequency}
+        message_dict = {'sensor_id': new_info.sensor_id, 'sensor_frequency_temp': new_info.sensor_frequency}
         publish_message(message_dict)
 
     return updated_sensor
