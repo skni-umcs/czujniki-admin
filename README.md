@@ -33,7 +33,7 @@ Right now, partially filled messages will not be processed.
 ```json
 {
     "sensor_id": "string",
-    "new_frequencies": 0
+    "new_frequency_temp": 0
 }
 ```
 
@@ -62,7 +62,7 @@ MQTT_TOPIC_SEND=[mqtt topic for sending data]
  - Human-readable name (assigned by admin user while adding a module)
  - Location (geo coordinates + faculty name) 
  - State (active/inactive/error) 
- - Frequency of sending data
+ - Frequency of sending temp data
  - Signal Power
  - CPU temperature
  - Sensor noise
