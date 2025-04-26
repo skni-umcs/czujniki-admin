@@ -3,7 +3,7 @@ from config import Settings
 import logging
 import json
 from src.database.core import get_db_session
-from src.sensor.connector import update_sensor_data
+from src.sensor_data.connector import add_sensor_data
 
 settings = Settings()
 client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1, settings.MQTT_CLIENT)
@@ -40,15 +40,17 @@ def unwrap_message(payload:str):
         logging.info(e)
         return
 
-    logging.info(f"Received message: {message}")
+    logging.info(f"Received message from MQTT: {message}")
 
-    # keys might finally be different, keep in mind
-    sensor_code = message.get('sensor_id')
-    new_rssi = message.get('rssi')
-    new_cpu_temp = message.get('cpu_temp')
-    new_sensor_noise = message.get('sensor_noise')
+    # data unpacking (might be changed in the future)
+    source_id = message.get('source_id')
+    cpu_temp = message.get('cpu_temp')
+    noise = message.get('noise')
+    free_heap = message.get('free_heap')
+    raw_packet = message.get('raw_packet')
+    hop_data = message.get('hop_data')
+    timestamp = message.get('timestamp')
+    queue_fill = message.get('queue_fill')
 
     with get_db_session() as db:
-        update_sensor_data(db,sensor_code,new_rssi,new_cpu_temp,new_sensor_noise)
-
-
+        add_sensor_data(db, source_id, raw_packet, timestamp, noise, cpu_temp, free_heap, queue_fill, hop_data)

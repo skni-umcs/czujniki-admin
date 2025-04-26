@@ -13,6 +13,7 @@ settings = Settings()
 from .sensor import router as module_router
 from .user import routes as user_router
 from .logs import routes as logs_router
+from .sensor_data import routes as sensor_data_router
 
 logging.basicConfig(level=logging.INFO)
 
@@ -26,9 +27,9 @@ async def lifespan(app: FastAPI):
     client.loop_stop()
     client.disconnect()
 
-app = FastAPI(title="Sensors Admin Panel",
-              description="Sensors Admin Panel is a web application for managing sensors",
-              version="0.1.0-dev",
+app = FastAPI(title="Sensors Admin API",
+              description="Sensors Admin API is a RESTful API for managing sensors and storing their technical data.",
+              version="0.1.1-dev",
               swagger_ui_parameters={"docExpansion": "none"},
               lifespan=lifespan)
 
@@ -43,6 +44,8 @@ app.add_middleware(
 app.include_router(module_router.api_router)
 app.include_router(user_router.router)
 app.include_router(logs_router.router)
+
+app.include_router(sensor_data_router.api_router)
 
 # health check
 @app.get("/health")
