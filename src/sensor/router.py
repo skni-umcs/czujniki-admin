@@ -50,7 +50,7 @@ async def update_sensor_info_by_code(new_info: SensorInfoUpdate, db: Session = D
 
 
 @api_router.get("/frequencies", response_model=list[SensorFrequencyOnly])
-async def get_sensors_frequnecies(db: Session = Depends(get_db), current_user = Depends(get_current_user)):
+async def get_sensors_frequencies(db: Session = Depends(get_db), current_user = Depends(get_current_user)):
     sensors = get_all_sensors(db)
     return sensors
 
