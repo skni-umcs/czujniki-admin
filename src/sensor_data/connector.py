@@ -66,3 +66,14 @@ def get_edges(db: Session, sensor_data_id: int):
     sensor_data = db.query(DBSensorData).filter(DBSensorData.sensor_data_id == sensor_data_id).first()
     return sensor_data.edges
 
+def get_nodes(db: Session, sensor_data_id: int):
+    sensor_data = db.query(DBSensorData).filter(DBSensorData.sensor_data_id == sensor_data_id).first()
+    nodes = []
+    for ids in sensor_data.hop_ids:
+        sensor = get_sensor_by_code(db, ids)
+        nodes.append({
+            'id': sensor.sensor_id,
+            'longitude': sensor.sensor_longitude,
+            'latitude': sensor.sensor_latitude,
+        })
+    return nodes
