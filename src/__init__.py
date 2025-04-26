@@ -13,6 +13,7 @@ settings = Settings()
 from .sensor import router as module_router
 from .user import routes as user_router
 from .logs import routes as logs_router
+from .sensor_data import routes as sensor_data_router
 
 logging.basicConfig(level=logging.INFO)
 
@@ -43,6 +44,8 @@ app.add_middleware(
 app.include_router(module_router.api_router)
 app.include_router(user_router.router)
 app.include_router(logs_router.router)
+
+app.include_router(sensor_data_router.api_router)
 
 # health check
 @app.get("/health")
