@@ -4,7 +4,7 @@ from src.mqtt_handler import publish_message
 from config import Settings
 from src.database.core import get_db
 from .connector import get_all_sensors, create_new_sensor, get_sensor_by_code, update_sensor_info, delete_sensor_by_code
-from .exceptions import SensorNotFoundException, SensorLocationTakenException, SensorNameTakenException, \
+from .exceptions import SensorNotFoundException, SensorNameTakenException, \
     SensorIdTakenException, SensorFrequencyNotWithinLimit
 from .schemas import Sensor, SensorCreate, SensorInfoUpdate, SensorFrequencyOnly
 from src.auth.security import get_current_user
@@ -24,7 +24,7 @@ async def add_sensor(new_sensor: SensorCreate, db: Session = Depends(get_db), cu
         created_sensor = create_new_sensor(db, new_sensor.sensor_id,new_sensor.sensor_name, new_sensor.sensor_latitude, new_sensor.sensor_longitude, new_sensor.sensor_frequency)
     except SensorNotFoundException as e:
         raise HTTPException(404, str(e))
-    except (SensorLocationTakenException, SensorNameTakenException, SensorIdTakenException) as e:
+    except (SensorNameTakenException, SensorIdTakenException) as e:
         raise HTTPException(409, str(e))
     except SensorFrequencyNotWithinLimit as e:
         raise HTTPException(400, str(e))
@@ -37,7 +37,7 @@ async def update_sensor_info_by_code(new_info: SensorInfoUpdate, db: Session = D
         updated_sensor = update_sensor_info(db,new_info.sensor_id,new_info.sensor_name, new_info.sensor_latitude,new_info.sensor_longitude, new_info.sensor_frequency)
     except SensorNotFoundException as e:
         raise HTTPException(404, str(e))
-    except (SensorLocationTakenException, SensorNameTakenException) as e:
+    except SensorNameTakenException as e:
         raise HTTPException(409, str(e))
     except SensorFrequencyNotWithinLimit as e:
         raise HTTPException(400, str(e))

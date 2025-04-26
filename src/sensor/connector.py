@@ -3,7 +3,7 @@ from datetime import datetime
 from .models import DBSensor
 from .exceptions import (SensorNotFoundException, SensorNameTakenException,
                          SensorIdTakenException,
-                         SensorLocationTakenException, SensorFrequencyNotWithinLimit)
+                         SensorFrequencyNotWithinLimit)
 from sqlalchemy.orm import Session
 
 def get_all_sensors(db: Session) -> list[DBSensor]:

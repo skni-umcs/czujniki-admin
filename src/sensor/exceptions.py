@@ -16,11 +16,6 @@ class SensorNameTakenException(Exception):
         super().__init__(self.message)
 
 
-class SensorLocationTakenException(Exception):
-    def __init__(self):
-        self.message = "There is already a sensor in this location."
-        super().__init__(self.message)
-
 class SensorFrequencyNotWithinLimit(Exception):
     def __init__(self):
         self.message = "Bad sensor frequency value. It should be between 5 and 3600 seconds (inclusive)."
