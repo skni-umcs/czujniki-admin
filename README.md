@@ -15,15 +15,19 @@ localhost:8000/docs#
 
 # What is used
 ## MQTT
-MQTT is used for a two-way communication between the service and gateway.
+MQTT is used for a two-way communication between the API and gateway.
 ### Valid MQTT messages received by service
 #### Sensor Data
 ```json
 {
-    "sensor_id": "string",
-    "rssi": 0,
-    "cpu_temp": 0,
-    "sensor_noise": 0
+    "source_id": int,
+    "cpu_temp": int,
+    "noise": int,
+    "free_heap": int,
+    "raw_packet": str,
+    "hop_data": [[int,int],...],
+    "timestamp": time/str,
+    "queue_fill": int
 }
 ```
 Right now, partially filled messages will not be processed.
@@ -32,7 +36,7 @@ Right now, partially filled messages will not be processed.
 #### New frequency for sensor
 ```json
 {
-    "sensor_id": "string",
+    "sensor_id": str,
     "new_frequency_temp": 0
 }
 ```
@@ -55,26 +59,5 @@ MQTT_TOPIC_RECEIVE=[mqtt topic for receiving data]
 MQTT_TOPIC_SEND=[mqtt topic for sending data]
 ```
 
-# Technical stuff
-## Database Models
-### Sensor:
- - Sensor Code (Working as UUID)
- - Human-readable name (assigned by admin user while adding a module)
- - Location (geo coordinates + faculty name) 
- - State (active/inactive/error) 
- - Frequency of sending temp data
- - Signal Power
- - CPU temperature
- - Sensor noise
- - Timestamp of lastly received data
-
-### User:
- - UUID
- - Keycloak ID: ID from Keycloak
- - Login: User login received from Keycloak
-
-### Log:
- - Timestamp
- - Message
 
 
