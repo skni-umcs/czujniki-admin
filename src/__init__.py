@@ -27,9 +27,9 @@ async def lifespan(app: FastAPI):
     client.loop_stop()
     client.disconnect()
 
-app = FastAPI(title="Sensors Admin Panel",
-              description="Sensors Admin Panel is a web application for managing sensors",
-              version="0.1.0-dev",
+app = FastAPI(title="Sensors Admin API",
+              description="Sensors Admin API is a RESTful API for managing sensors and storing their technical data.",
+              version="0.1.1-dev",
               swagger_ui_parameters={"docExpansion": "none"},
               lifespan=lifespan)
 
