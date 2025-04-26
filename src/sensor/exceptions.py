@@ -15,6 +15,10 @@ class SensorNameTakenException(Exception):
         self.message = "Sensor with this name already exists in the database."
         super().__init__(self.message)
 
+class SensorLatitudeLongitudeTakenException(Exception):
+    def __init__(self):
+        self.message = "There is already a sensor with this latitude and longitude in the database."
+        super().__init__(self.message)
 
 class SensorFrequencyNotWithinLimit(Exception):
     def __init__(self):
