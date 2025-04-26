@@ -11,9 +11,10 @@ def get_all_sensors(db: Session) -> list[DBSensor]:
     return sensors
 
 def create_new_sensor(db: Session,
-                      sensor_id: str,
+                      sensor_id: int,
                       sensor_name: str,
-                      sensor_location: str,
+                      sensor_latitude: float,
+                      sensor_longitude: float,
                       sensor_frequency: int) ->DBSensor:
 
     sensor_with_code = db.query(DBSensor).filter(DBSensor.sensor_id == sensor_id).first()
@@ -26,17 +27,13 @@ def create_new_sensor(db: Session,
     if sensor_with_name:
         raise SensorNameTakenException
 
-    sensor_with_location = db.query(DBSensor).filter(DBSensor.sensor_location == sensor_location).first()
-
-    if sensor_with_location:
-        raise SensorLocationTakenException
-
     if sensor_frequency > 3600 or sensor_frequency < 5:
         raise SensorFrequencyNotWithinLimit
 
     sensor = DBSensor(sensor_id=sensor_id,
                       sensor_name=sensor_name,
-                      sensor_location=sensor_location,
+                      sensor_latitude=sensor_latitude,
+                      sensor_longitude=sensor_longitude,
                       sensor_status=1,
                       sensor_frequency=sensor_frequency)
 
@@ -45,7 +42,7 @@ def create_new_sensor(db: Session,
 
     return sensor
 
-def get_sensor_by_code(db: Session, sensor_id: str) -> DBSensor:
+def get_sensor_by_code(db: Session, sensor_id: int) -> DBSensor:
     sensor = db.query(DBSensor).filter(DBSensor.sensor_id == sensor_id).first()
 
     if sensor is None:
@@ -54,9 +51,10 @@ def get_sensor_by_code(db: Session, sensor_id: str) -> DBSensor:
     return sensor
 
 def update_sensor_info(db: Session,
-                       sensor_id: str,
+                       sensor_id: int,
                        sensor_name: str | None,
-                       sensor_location: str | None,
+                       sensor_latitude: float | None,
+                       sensor_longitude: float | None,
                        sensor_frequency: int | None) ->DBSensor:
     try:
         sensor = get_sensor_by_code(db,sensor_id)
@@ -70,23 +68,22 @@ def update_sensor_info(db: Session,
             raise SensorNameTakenException
         sensor.sensor_name = sensor_name
 
-    if sensor_location:
-        sensor_with_location = db.query(DBSensor).filter(DBSensor.sensor_location == sensor_location).first()
-
-        if sensor_with_location:
-            raise SensorLocationTakenException
-        sensor.sensor_location = sensor_location
-
     if sensor_frequency is not None:
         if sensor_frequency > 3600 or sensor_frequency < 5:
             raise SensorFrequencyNotWithinLimit
         sensor.sensor_frequency = sensor_frequency
 
+    if sensor_latitude is not None:
+        sensor.sensor_latitude = sensor_latitude
+
+    if sensor_longitude is not None:
+        sensor.sensor_longitude = sensor_longitude
+
     db.commit()
     return sensor
 
 def delete_sensor_by_code(db: Session,
-                          sensor_id: str):
+                          sensor_id: int):
     sensor = get_sensor_by_code(db,sensor_id)
 
     if sensor is None:
@@ -95,17 +92,4 @@ def delete_sensor_by_code(db: Session,
     db.delete(sensor)
     db.commit()
 
-# this method should only be called by mqtt message handler!
-def update_sensor_data(db: Session,
-                       sensor_id: str,
-                       new_rssi: float,
-                       new_cpu_temp: int,
-                       new_noise: int):
-    sensor = get_sensor_by_code(db,sensor_id)
-    sensor.last_rssi = new_rssi
-    sensor.last_cpu_temp = new_cpu_temp
-    sensor.last_sensor_noise = new_noise
-    sensor.last_info_timestamp = datetime.now()
-
-    db.commit()
 
