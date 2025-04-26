@@ -3,12 +3,10 @@ class SensorNotFoundException(Exception):
         self.message = "No sensor with this code in the database."
         super().__init__(self.message)
 
-
 class SensorIdTakenException(Exception):
     def __init__(self):
         self.message = "Sensor with this id already exists in the database."
         super().__init__(self.message)
-
 
 class SensorNameTakenException(Exception):
     def __init__(self):
