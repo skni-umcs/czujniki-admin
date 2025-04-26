@@ -27,7 +27,7 @@ class SensorDataCreate(BaseModel):
     queue_fill: int
     hop_ids: list[tuple[int, int]]
 
-class SensorDataWithGraph(BaseModel):
+class SensorData(BaseModel):
     sensor_id: int
     timestamp: str
     raw_packet: str
