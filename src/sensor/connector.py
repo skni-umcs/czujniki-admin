@@ -56,6 +56,20 @@ def get_sensor_by_code(db: Session, sensor_id: int) -> DBSensor:
 
     return sensor
 
+# should only be called upon sensor data creation
+def update_sensor_last_sensor_data_id(db: Session,
+                                      sensor_id: int,
+                                      last_sensor_data_id: int):
+
+    sensor = get_sensor_by_code(db,sensor_id)
+
+    if sensor is None:
+        raise SensorNotFoundException
+
+    sensor.last_sensor_data_id = last_sensor_data_id
+
+    db.commit()
+
 def update_sensor_info(db: Session,
                        sensor_id: int,
                        sensor_name: str | None,

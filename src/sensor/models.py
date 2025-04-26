@@ -1,4 +1,4 @@
-from sqlalchemy import Float, Integer, Column, String
+from sqlalchemy import Float, Integer, Column, String, ForeignKey
 from src.database.core import Base
 
 # TODO: sync this data with climate data db
@@ -10,4 +10,4 @@ class DBSensor(Base):
     sensor_longitude = Column(Float)
     sensor_status = Column(Integer) # always active, for now
     sensor_frequency = Column(Integer) # time between sending packets in seconds
-
+    last_sensor_data_id = Column(Integer, ForeignKey('sensor_data.sensor_data_id'),nullable=True)
