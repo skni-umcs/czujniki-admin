@@ -1,4 +1,4 @@
-from sqlalchemy import Float, Integer, Column, String, DateTime, ForeignKey, ARRAY
+from sqlalchemy import Float, Integer, Column, String, DateTime, ForeignKey, ARRAY, TIMESTAMP
 from sqlalchemy.orm import relationship
 
 from src.database.core import Base
@@ -16,7 +16,7 @@ class DBSensorData(Base):
     sensor_data_id = Column(Integer, primary_key=True, autoincrement=True)
     sensor_id = Column(Integer, ForeignKey('sensors.sensor_id'))
     raw_packet = Column(String(200)) # raw message from gate
-    timestamp = Column(String(200))
+    timestamp = Column(TIMESTAMP)
     noise = Column(Integer)
     cpu_temp = Column(Integer)
     free_heap = Column(Integer)
