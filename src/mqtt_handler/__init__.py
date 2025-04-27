@@ -37,7 +37,7 @@ def unwrap_message(payload:str):
     try:
         message = json.loads(payload)
     except Exception as e:
-        logging.info(e)
+        logging.info("Error while decoding JSON: %s", e)
         return
 
     logging.info(f"Received message from MQTT: {message}")
