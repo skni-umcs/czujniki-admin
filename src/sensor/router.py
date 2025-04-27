@@ -48,12 +48,6 @@ async def update_sensor_info_by_code(new_info: SensorInfoUpdate, db: Session = D
 
     return updated_sensor
 
-
-@api_router.get("/frequencies", response_model=list[SensorFrequencyOnly])
-async def get_sensors_frequencies(db: Session = Depends(get_db), current_user = Depends(get_current_user)):
-    sensors = get_all_sensors(db)
-    return sensors
-
 @api_router.delete("/{sensor_id}")
 async def delete_sensor(sensor_id: int, db: Session = Depends(get_db), current_user: DBUser = Depends(get_current_user)):
     try:

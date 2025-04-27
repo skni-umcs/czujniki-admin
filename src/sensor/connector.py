@@ -6,6 +6,9 @@ from .exceptions import (SensorNotFoundException, SensorNameTakenException,
                          SensorFrequencyNotWithinLimit, SensorLatitudeLongitudeTakenException)
 from sqlalchemy.orm import Session
 
+from ..frequency.connector import create_new_frequency_period
+
+
 def get_all_sensors(db: Session) -> list[DBSensor]:
     sensors = db.query(DBSensor).all()
     return sensors
@@ -36,14 +39,22 @@ def create_new_sensor(db: Session,
     if sensor_frequency > 3600 or sensor_frequency < 5:
         raise SensorFrequencyNotWithinLimit
 
+
     sensor = DBSensor(sensor_id=sensor_id,
                       sensor_name=sensor_name,
                       sensor_latitude=sensor_latitude,
                       sensor_longitude=sensor_longitude,
-                      sensor_status=1,
-                      sensor_frequency=sensor_frequency)
+                      sensor_status=1)
 
     db.add(sensor)
+    db.commit()
+    db.refresh(sensor)
+    frequency = create_new_frequency_period(db,sensor.sensor_id,sensor_frequency, datetime.now())
+
+    sensor.current_frequency_period_id = frequency.frequency_period_id
+
+    sensor.current_frequency_period = frequency
+
     db.commit()
 
     return sensor
@@ -91,7 +102,11 @@ def update_sensor_info(db: Session,
     if sensor_frequency is not None:
         if sensor_frequency > 3600 or sensor_frequency < 5:
             raise SensorFrequencyNotWithinLimit
-        sensor.sensor_frequency = sensor_frequency
+        dt = datetime.now()
+        sensor.current_frequency_period.end = dt
+        new_period = create_new_frequency_period(db,sensor.sensor_id,sensor_frequency, dt)
+        sensor.current_frequency_period_id = new_period.frequency_period_id
+        sensor.current_frequency_period = new_period
 
     # not that clever, maybe to rewrite later
     if sensor_latitude is not None and sensor_longitude is not None:

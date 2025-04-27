@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel
 
 class Edge(BaseModel):
@@ -20,7 +22,7 @@ class SensorDataBase(BaseModel):
 class SensorDataCreate(BaseModel):
     sensor_id: int
     raw_packet: str
-    timestamp: str
+    timestamp: datetime
     noise: int
     cpu_temp: int
     free_heap: int
@@ -29,7 +31,7 @@ class SensorDataCreate(BaseModel):
 
 class SensorData(BaseModel):
     sensor_id: int
-    timestamp: str
+    timestamp: datetime
     raw_packet: str
     noise: int
     cpu_temp: int
