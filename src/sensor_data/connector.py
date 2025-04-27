@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from .models import DBEdge, DBSensorData
-from src.sensor.connector import get_sensor_by_code
+from src.sensor.connector import get_sensor_by_code, update_sensor_last_sensor_data_id
+
 
 def add_edge(db: Session,
              sensor_data_id: int,
@@ -46,6 +47,8 @@ def add_sensor_data(db: Session,
         current = target
 
     db.commit()
+
+    update_sensor_last_sensor_data_id(db, sensor_data.sensor_id, sensor_data.sensor_data_id)
 
     return sensor_data
 

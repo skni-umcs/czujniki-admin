@@ -22,10 +22,7 @@ async def add_sensor_data_route(sensor_data: SensorDataCreate,
                                       sensor_data.queue_fill, sensor_data.hop_ids)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
-    try:
-        update_sensor_last_sensor_data_id(db,sensor_data.sensor_id,sensor_data.sensor_data_id)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+
     return sensor_data
 
 @api_router.get("/{sensor_id}/last/graph", response_model=Graph)
