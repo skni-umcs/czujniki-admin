@@ -15,6 +15,7 @@ from .user import routes as user_router
 from .logs import routes as logs_router
 from .sensor_data import routes as sensor_data_router
 from .frequency import routes as frequency_router
+from .simulation import routes as simulation_router
 
 logging.basicConfig(level=logging.INFO)
 
@@ -48,6 +49,7 @@ app.include_router(logs_router.router)
 
 app.include_router(sensor_data_router.api_router)
 app.include_router(frequency_router.router)
+app.include_router(simulation_router.router)
 
 # health check
 @app.get("/health")
