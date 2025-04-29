@@ -1,6 +1,10 @@
+import typing
+
 import requests
-from fastapi import Depends
-from fastapi.security import OAuth2AuthorizationCodeBearer
+from fastapi import Depends, Request, HTTPException
+from fastapi.security import OAuth2
+from fastapi.security.utils import get_authorization_scheme_param
+from fastapi.openapi.models import OAuthFlows as OAuthFlowsModel
 from jose import jwt, JWTError
 
 from src.auth.exceptions import CredentialsException
@@ -11,11 +15,34 @@ from config import Settings
 
 settings = Settings()
 
-oauth2_scheme = OAuth2AuthorizationCodeBearer(
-    authorizationUrl=f"{settings.KEYCLOAK_SERVER_URL}/realms/{settings.KEYCLOAK_REALM}/protocol/openid-connect/auth",
-    tokenUrl=f"{settings.KEYCLOAK_SERVER_URL}/realms/{settings.KEYCLOAK_REALM}/protocol/openid-connect/token",
-    refreshUrl=f"{settings.KEYCLOAK_SERVER_URL}/realms/{settings.KEYCLOAK_REALM}/protocol/openid-connect/token"
-)
+class Oauth2ClientCredentials(OAuth2):
+    def __init__(
+        self,
+        tokenUrl: str,
+        scheme_name: str = None,
+        scopes: dict = None,
+        auto_error: bool = True,
+    ):
+        if not scopes:
+            scopes = {}
+        flows = OAuthFlowsModel(clientCredentials={"tokenUrl": tokenUrl, "scopes": scopes})
+        super().__init__(flows=flows, scheme_name=scheme_name, auto_error=auto_error)
+
+    async def __call__(self, request: Request) -> typing.Optional[str]:
+        authorization: str = request.headers.get("Authorization")
+        scheme, param = get_authorization_scheme_param(authorization)
+        if not authorization or scheme.lower() != "bearer":
+            if self.auto_error:
+                raise HTTPException(
+                    status_code=401,
+                    detail="Not authenticated",
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
+            else:
+                return None
+        return param
+
+oauth2_scheme = Oauth2ClientCredentials(tokenUrl=f"{settings.KEYCLOAK_SERVER_URL}/realms/{settings.KEYCLOAK_REALM}/protocol/openid-connect/token")
 
 KEYCLOAK_PUBLIC_KEY = f"{settings.KEYCLOAK_SERVER_URL}/realms/{settings.KEYCLOAK_REALM}/protocol/openid-connect/certs"
 certs = requests.get(KEYCLOAK_PUBLIC_KEY).json()
