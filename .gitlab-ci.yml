@@ -1,6 +1,6 @@
 stages:
   - build_docker
-#   - deploy
+  - deploy
 
 docker_build:
   stage: build_docker
@@ -18,16 +18,17 @@ docker_build:
     - master
     - main
     - ci-test
-# deploy:
-#   stage: deploy
-#   trigger:
-#     project: "czujniki/infra"
-#     branch: "main"
-#     strategy: depend
-#     forward:
-#       pipeline_variables: true
-#   variables:
-#     BACKEND_IMAGE_TAG: "$CI_COMMIT_SHORT_SHA-$CI_COMMIT_BRANCH"
-#   only:
-#     - main
-#     - master
+deploy:
+  stage: deploy
+  trigger:
+    project: "czujniki/infra"
+    branch: "main"
+    strategy: depend
+    forward:
+      pipeline_variables: true
+  variables:
+    ADMIN_IMAGE_TAG: "$CI_COMMIT_SHORT_SHA-$CI_COMMIT_BRANCH"
+  only:
+    - main
+    - master
+    
