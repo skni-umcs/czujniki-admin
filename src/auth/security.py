@@ -16,13 +16,15 @@ class Oauth2ClientCredentials(OAuth2):
     def __init__(
         self,
         tokenUrl: str,
+        authorizationUrl: str = None,
         scheme_name: str = None,
         scopes: dict = None,
         auto_error: bool = True,
     ):
         if not scopes:
             scopes = {}
-        flows = OAuthFlowsModel(clientCredentials={"tokenUrl": tokenUrl, "scopes": scopes})
+        flows = OAuthFlowsModel(clientCredentials={"tokenUrl": tokenUrl, "scopes": scopes},
+                                authorizationCode={"authorizationUrl": authorizationUrl, "tokenUrl": tokenUrl, "scopes": {"email":"email","profile":"profile","openid":"openid"}} )
         super().__init__(flows=flows, scheme_name=scheme_name, auto_error=auto_error)
 
     async def __call__(self, request: Request) -> typing.Optional[str]:
@@ -40,7 +42,8 @@ class Oauth2ClientCredentials(OAuth2):
         return param
 
 token_url = f"{settings.AUTHENTIK_SERVER_URL}/application/o/token/"
-oauth2_scheme = Oauth2ClientCredentials(tokenUrl=token_url)
+authorization_url = f"{settings.AUTHENTIK_SERVER_URL}/application/o/authorize/"
+oauth2_scheme = Oauth2ClientCredentials(tokenUrl=token_url,authorizationUrl=authorization_url)
 
 jwks_url = f"{settings.AUTHENTIK_SERVER_URL}/application/o/{settings.AUTHENTIK_APP_NAME}/jwks/"
 jwk = requests.get(jwks_url).json()
