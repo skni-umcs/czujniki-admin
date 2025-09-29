@@ -9,9 +9,10 @@ class Settings(BaseSettings):
     DB_PASSWORD: str
     DB_NAME: str
     ROOT_PATH: str
-    KEYCLOAK_SERVER_URL: str
-    KEYCLOAK_REALM: str
-    KEYCLOAK_ALGO: str
+    AUTHENTIK_SERVER_URL: str
+    AUTHENTIK_APP_NAME: str
+    AUTHENTIK_CLIENT_ID: str
+    AUTHENTIK_ALGORITHM: str
     MQTT_CLIENT: str
     MQTT_BROKER: str
     MQTT_PORT: str
