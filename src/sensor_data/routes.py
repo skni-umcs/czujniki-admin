@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from config import Settings
+from src.auth.security import get_current_token
 from src.database.core import get_db
 from src.sensor.connector import get_sensor_by_code, update_sensor_last_sensor_data_id
 from src.sensor.exceptions import SensorNotFoundException
@@ -14,7 +15,8 @@ settings = Settings()
 # TODO: This route is only for debug, newer use in prod, delete after full MQTT integration
 @api_router.post("/", response_model=SensorData)
 async def add_sensor_data_route(sensor_data: SensorDataCreate,
-                                 db: Session = Depends(get_db)):
+                                 db: Session = Depends(get_db),
+                                 token = Depends(get_current_token)):
     try:
         sensor_data = add_sensor_data(db, sensor_data.sensor_id, sensor_data.raw_packet,
                                       sensor_data.timestamp, sensor_data.noise,
@@ -27,7 +29,7 @@ async def add_sensor_data_route(sensor_data: SensorDataCreate,
 
 @api_router.get("/{sensor_id}/last/graph", response_model=Graph)
 async def get_latest_sensor_data_graph(sensor_id: int,
-                         db: Session = Depends(get_db)):
+                         db: Session = Depends(get_db), token = Depends(get_current_token)):
     try:
         sensor = get_sensor_by_code(db, sensor_id)
     except SensorNotFoundException:
@@ -39,7 +41,7 @@ async def get_latest_sensor_data_graph(sensor_id: int,
 
 @api_router.get("/{sensor_id}/last/nodes", response_model=list[SensorNode])
 async def get_latest_sensor_data_nodes(sensor_id: int,
-                         db: Session = Depends(get_db)):
+                         db: Session = Depends(get_db), token = Depends(get_current_token)):
     try:
         sensor = get_sensor_by_code(db, sensor_id)
     except SensorNotFoundException:
@@ -51,7 +53,7 @@ async def get_latest_sensor_data_nodes(sensor_id: int,
 
 @api_router.get("/{sensor_id}/last/edges", response_model=list[Edge])
 async def get_latest_sensor_data_edges(sensor_id: int,
-                         db: Session = Depends(get_db)):
+                         db: Session = Depends(get_db), token = Depends(get_current_token)):
     try:
         sensor = get_sensor_by_code(db, sensor_id)
     except SensorNotFoundException:
