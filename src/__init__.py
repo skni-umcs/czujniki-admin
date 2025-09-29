@@ -11,7 +11,6 @@ settings = Settings()
 
 
 from .sensor import router as module_router
-from .user import routes as user_router
 from .logs import routes as logs_router
 from .sensor_data import routes as sensor_data_router
 from .frequency import routes as frequency_router
@@ -31,7 +30,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Sensors Admin API",
               description="Sensors Admin API is a RESTful API for managing sensors and storing their technical data.",
-              version="0.1.1-dev",
+              version="0.1.2-dev",
               swagger_ui_parameters={"docExpansion": "none"},
               lifespan=lifespan)
 
@@ -44,7 +43,6 @@ app.add_middleware(
 )
 
 app.include_router(module_router.api_router)
-app.include_router(user_router.router)
 app.include_router(logs_router.router)
 
 app.include_router(sensor_data_router.api_router)
