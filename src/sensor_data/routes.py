@@ -4,11 +4,11 @@ from sqlalchemy.orm import Session
 from config import Settings
 from src.auth.security import get_current_token
 from src.database.core import get_db
-from src.sensor.connector import get_sensor_by_code, update_sensor_last_sensor_data_id
+from src.sensor.connector import get_sensor_by_code
 from src.sensor.exceptions import SensorNotFoundException
-from src.sensor_data.connector import add_sensor_data, get_graph, get_edges, get_nodes
+from src.sensor_data.connector import get_graph, get_edges, get_nodes
 from src.sensor_data.models import DBSensorData
-from src.sensor_data.schemas import SensorData, SensorDataCreate, Graph, Edge, SensorNode
+from src.sensor_data.schemas import SensorData, Graph, Edge, SensorNode
 
 api_router = APIRouter(prefix="/sensor_data", tags=["sensor_data"])
 settings = Settings()
