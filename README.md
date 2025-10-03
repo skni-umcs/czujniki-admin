@@ -14,6 +14,10 @@ localhost:8000/docs#
 ```
 
 # What is used
+## Climate backend synchronization
+The service synchronizes with the climate backend to get the latest climate data for each sensor. 
+
+For now, this is done once on a startup. Later it will be done periodically.
 ## MQTT
 MQTT is used for a two-way communication between the API and gateway.
 ### Valid MQTT messages received by service

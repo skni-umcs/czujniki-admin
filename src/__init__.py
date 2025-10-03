@@ -29,7 +29,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Sensors Admin API",
               description="Sensors Admin API is a RESTful API for managing sensors and storing their technical data.",
-              version="0.1.2-dev",
+              version="0.1.3-dev",
               swagger_ui_parameters={"docExpansion": "none"},
               lifespan=lifespan)
 
