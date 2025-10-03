@@ -13,21 +13,6 @@ from src.sensor_data.schemas import SensorData, SensorDataCreate, Graph, Edge, S
 api_router = APIRouter(prefix="/sensor_data", tags=["sensor_data"])
 settings = Settings()
 
-# TODO: This route is only for debug, newer use in prod, delete after full MQTT integration
-@api_router.post("/", response_model=SensorData)
-async def add_sensor_data_route(sensor_data: SensorDataCreate,
-                                 db: Session = Depends(get_db),
-                                 token = Depends(get_current_token)):
-    try:
-        sensor_data = add_sensor_data(db, sensor_data.sensor_id, sensor_data.raw_packet,
-                                      sensor_data.timestamp, sensor_data.noise,
-                                      sensor_data.cpu_temp, sensor_data.free_heap,
-                                      sensor_data.queue_fill, sensor_data.hop_ids)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-    return sensor_data
-
 @api_router.get("/{sensor_id}/last/graph", response_model=Graph)
 async def get_latest_sensor_data_graph(sensor_id: int,
                          db: Session = Depends(get_db), token = Depends(get_current_token)):
