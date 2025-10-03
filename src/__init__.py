@@ -5,12 +5,10 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from . import database as models
 from config import Settings
-
 from src.mqtt_handler import client
 settings = Settings()
-
-
 from .sensor import router as module_router
+from .sensor.backend_sync import sync_sensors_data
 from .logs import routes as logs_router
 from .sensor_data import routes as sensor_data_router
 from .frequency import routes as frequency_router
@@ -20,6 +18,7 @@ logging.basicConfig(level=logging.INFO)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    sync_sensors_data()
     logging.info("Starting MQTT client...")
     client.connect(settings.MQTT_BROKER, int(settings.MQTT_PORT),60)
     client.loop_start()
