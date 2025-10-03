@@ -7,6 +7,7 @@ from src.database.core import get_db
 from src.sensor.connector import get_sensor_by_code, update_sensor_last_sensor_data_id
 from src.sensor.exceptions import SensorNotFoundException
 from src.sensor_data.connector import add_sensor_data, get_graph, get_edges, get_nodes
+from src.sensor_data.models import DBSensorData
 from src.sensor_data.schemas import SensorData, SensorDataCreate, Graph, Edge, SensorNode
 
 api_router = APIRouter(prefix="/sensor_data", tags=["sensor_data"])
@@ -62,3 +63,17 @@ async def get_latest_sensor_data_edges(sensor_id: int,
     edges = get_edges(db, sensor.last_sensor_data_id)
 
     return edges
+
+@api_router.get("/{sensor_id}/last/info", response_model=SensorData)
+async def get_latest_sensor_data_info(sensor_id: int,
+                         db: Session = Depends(get_db), token = Depends(get_current_token)):
+    try:
+        sensor = get_sensor_by_code(db, sensor_id)
+    except SensorNotFoundException as e:
+        raise HTTPException(status_code=404, detail=e)
+
+    sensor_data = db.query(DBSensorData).filter(DBSensorData.sensor_data_id == sensor.last_sensor_data_id).first()
+    if not sensor_data:
+        raise HTTPException(status_code=404, detail="No sensor data found for this sensor")
+
+    return sensor_data
