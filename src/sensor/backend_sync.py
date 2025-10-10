@@ -6,7 +6,7 @@ from .connector import create_new_sensor
 import requests
 
 def request_sensors_json_from_backend():
-    response = requests.get("http://back.dev.skni.umcs.pl/api/sensors")
+    response = requests.get("http://backend/api/sensors")
     logging.info(f"Response: {response}")
     return response.json()
 
