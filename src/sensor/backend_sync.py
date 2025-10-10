@@ -6,8 +6,7 @@ from .connector import create_new_sensor
 import requests
 
 def request_sensors_json_from_backend():
-    response = requests.get("http://backend-main.default.svc.cluster.local:8080/api/sensors")
-    logging.info(f"Response: {response}")
+    response = requests.get("https://back.dev.skni.umcs.pl/api/sensors")
     return response.json()
 
 def parse_backend_data(data):
