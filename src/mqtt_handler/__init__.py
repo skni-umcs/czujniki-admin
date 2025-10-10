@@ -44,7 +44,7 @@ def unwrap_message(payload:str):
 
     # data unpacking (might be changed in the future)
     source_id = message.get('source_id')
-    cpu_temp = message.get('cpu_temp')
+    cpu_temp = message.get('cpu_temperature')
     noise = message.get('noise')
     free_heap = message.get('free_heap')
     raw_packet = message.get('raw_packet')
