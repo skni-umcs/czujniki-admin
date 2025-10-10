@@ -25,7 +25,7 @@ MQTT is used for a two-way communication between the API and gateway.
 ```json
 {
     "source_id": int,
-    "cpu_temp": int,
+    "cpu_temperature": int,
     "noise": int,
     "free_heap": int,
     "raw_packet": str,
