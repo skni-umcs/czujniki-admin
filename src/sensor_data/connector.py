@@ -1,3 +1,4 @@
+from datetime import datetime
 from sqlalchemy.orm import Session
 from .models import DBEdge, DBSensorData
 from src.sensor.connector import get_sensor_by_code, update_sensor_last_sensor_data_id
@@ -28,10 +29,12 @@ def add_sensor_data(db: Session,
                 queue_fill: int,
                 path: [(int,int)]) -> DBSensorData:
 
+    ts = datetime.fromtimestamp(timestamp)
+
     hop_ids = [sensor_id]
     sensor_data = DBSensorData(sensor_id=sensor_id,
                                raw_packet=raw_packet,
-                               timestamp=timestamp,
+                               timestamp=ts,
                                noise=noise,
                                cpu_temp=cpu_temp,
                                free_heap=free_heap,
