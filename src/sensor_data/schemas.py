@@ -28,6 +28,7 @@ class SensorDataCreate(BaseModel):
     free_heap: int
     queue_fill: int
     hop_ids: list[tuple[int, int]]
+    collisions: int
 
 class SensorData(BaseModel):
     sensor_id: int
@@ -38,6 +39,7 @@ class SensorData(BaseModel):
     free_heap: int
     queue_fill: int
     hop_ids: list[int]
+    collisions: int
 
     class Config:
         from_attributes = True

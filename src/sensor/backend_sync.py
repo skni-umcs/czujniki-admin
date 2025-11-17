@@ -6,7 +6,7 @@ from .connector import create_new_sensor
 import requests
 
 def request_sensors_json_from_backend():
-    response = requests.get("https://back.dev.skni.umcs.pl/api/sensors")
+    response = requests.get("https://czujniki.skni.umcs.pl/api/sensors?size=40")
     return response.json()
 
 def parse_backend_data(data):
@@ -22,7 +22,7 @@ def parse_backend_data(data):
         return sensors
 
     except KeyError as e:
-        print(f"Błąd przetwarzania danych: brak klucza {e}")
+        print(f"Error retrieving key: {e}")
         return []
 
 def sync_sensors_data():
@@ -35,7 +35,7 @@ def sync_sensors_data():
     with  get_db_session() as db:
         for sensor in sensors:
             try:
-                create_new_sensor(db, sensor['sensor_id'], sensor['sensor_name'], sensor['sensor_latitude'], sensor['sensor_longitude'], 60)
+                create_new_sensor(db, sensor['sensor_id'], sensor['sensor_name'], sensor['sensor_latitude'], sensor['sensor_longitude'], 1200)
                 logging.info(f"Sensor with id {sensor['sensor_id']} added successfully.")
                 Logger.write(f"Sensor with id {sensor['sensor_id']} added.")
             except (SensorIdTakenException, SensorNameTakenException, SensorLatitudeLongitudeTakenException):
