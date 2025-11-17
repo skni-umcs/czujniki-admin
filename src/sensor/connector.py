@@ -1,17 +1,14 @@
-from datetime import datetime
-
+from datetime import datetime, timedelta
 from .models import DBSensor
-from .exceptions import (SensorNotFoundException, SensorNameTakenException,
+from .exceptions import (SensorNotFoundException,
                          SensorIdTakenException,
-                         SensorFrequencyNotWithinLimit, SensorLatitudeLongitudeTakenException)
+                         SensorFrequencyNotWithinLimit)
 from sqlalchemy.orm import Session
-
 from ..frequency.connector import create_new_frequency_period
 
-
 def get_all_sensors(db: Session) -> list[DBSensor]:
-    sensors = db.query(DBSensor).all()
-    return sensors
+
+    return db.query(DBSensor).all()
 
 def create_new_sensor(db: Session,
                       sensor_id: int,
@@ -20,31 +17,21 @@ def create_new_sensor(db: Session,
                       sensor_longitude: float,
                       sensor_frequency: int) ->DBSensor:
 
-    sensor_with_code = db.query(DBSensor).filter(DBSensor.sensor_id == sensor_id).first()
+    sensor_with_id = get_sensor_by_id(db,sensor_id)
 
-    if sensor_with_code:
+    if sensor_with_id:
         raise SensorIdTakenException
-
-    # sensor_with_name = db.query(DBSensor).filter(DBSensor.sensor_faculty == sensor_faculty).first()
-    #
-    # if sensor_with_name:
-    #     raise SensorNameTakenException
-
-    sensor_with_location = db.query(DBSensor).filter(DBSensor.sensor_latitude == sensor_latitude,
-                                                    DBSensor.sensor_longitude == sensor_longitude).first()
-
-    if sensor_with_location:
-        raise SensorLatitudeLongitudeTakenException
 
     if sensor_frequency > 3600 or sensor_frequency < 5:
         raise SensorFrequencyNotWithinLimit
-
 
     sensor = DBSensor(sensor_id=sensor_id,
                       sensor_faculty=sensor_faculty,
                       sensor_latitude=sensor_latitude,
                       sensor_longitude=sensor_longitude,
-                      sensor_status=1)
+                      sensor_status=0, # assume new sensor is offline
+                      last_timestamp= datetime.now() - timedelta(days=1),
+                      last_message_type="N/A")
 
     db.add(sensor)
     db.commit()
@@ -59,7 +46,9 @@ def create_new_sensor(db: Session,
 
     return sensor
 
-def get_sensor_by_code(db: Session, sensor_id: int) -> DBSensor:
+def get_sensor_by_id(db: Session,
+                     sensor_id: int) -> DBSensor:
+
     sensor = db.query(DBSensor).filter(DBSensor.sensor_id == sensor_id).first()
 
     if sensor is None:
@@ -67,12 +56,11 @@ def get_sensor_by_code(db: Session, sensor_id: int) -> DBSensor:
 
     return sensor
 
-# should only be called upon sensor data creation
 def update_sensor_last_sensor_data_id(db: Session,
                                       sensor_id: int,
-                                      last_sensor_data_id: int):
+                                      last_sensor_data_id: int) -> None:
 
-    sensor = get_sensor_by_code(db,sensor_id)
+    sensor = get_sensor_by_id(db,sensor_id)
 
     if sensor is None:
         raise SensorNotFoundException
@@ -81,23 +69,32 @@ def update_sensor_last_sensor_data_id(db: Session,
 
     db.commit()
 
-def update_sensor_info(db: Session,
-                       sensor_id: int,
-                       sensor_faculty: str | None,
-                       sensor_latitude: float | None,
-                       sensor_longitude: float | None,
-                       sensor_frequency: int | None) ->DBSensor:
+def update_sensor_on_ping(db: Session,
+                          sensor_id: int,
+                          timestamp: datetime,
+                          message_type: str) -> None:
+
+        sensor = get_sensor_by_id(db,sensor_id)
+
+        if sensor is None:
+            raise SensorNotFoundException
+
+        sensor.last_timestamp = timestamp
+        sensor.last_message_type = message_type
+
+        if sensor.sensor_status == 0:
+            sensor.sensor_status = 1
+
+        db.commit()
+
+def update_sensor_frequency(db: Session,
+                            sensor_id: int,
+                            sensor_frequency: int) -> None:
+
     try:
-        sensor = get_sensor_by_code(db,sensor_id)
+        sensor = get_sensor_by_id(db,sensor_id)
     except SensorNotFoundException:
         raise SensorNotFoundException
-
-    if sensor_faculty:
-        sensor_with_name = db.query(DBSensor).filter(DBSensor.sensor_faculty == sensor_faculty).first()
-
-        if sensor_with_name:
-            raise SensorNameTakenException
-        sensor.sensor_faculty = sensor_faculty
 
     if sensor_frequency is not None:
         if sensor_frequency > 3600 or sensor_frequency < 5:
@@ -108,24 +105,12 @@ def update_sensor_info(db: Session,
         sensor.current_frequency_period_id = new_period.frequency_period_id
         sensor.current_frequency_period = new_period
 
-    # not that clever, maybe to rewrite later
-    if sensor_latitude is not None and sensor_longitude is not None:
-        sensor_with_location = db.query(DBSensor).filter(
-            DBSensor.sensor_latitude == sensor_latitude,
-            DBSensor.sensor_longitude == sensor_longitude,
-            DBSensor.sensor_id != sensor_id  # Exclude the current sensor
-        ).first()
-        if sensor_with_location:
-            raise SensorLatitudeLongitudeTakenException
-        sensor.sensor_latitude = sensor_latitude
-        sensor.sensor_longitude = sensor_longitude
-
     db.commit()
-    return sensor
 
-def delete_sensor_by_code(db: Session,
-                          sensor_id: int):
-    sensor = get_sensor_by_code(db,sensor_id)
+def delete_sensor_by_id(db: Session,
+                        sensor_id: int):
+
+    sensor = get_sensor_by_id(db,sensor_id)
 
     if sensor is None:
         raise SensorNotFoundException
