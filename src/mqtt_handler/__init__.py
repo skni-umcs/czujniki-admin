@@ -51,6 +51,7 @@ def unwrap_message(payload:str):
     hop_data = message.get('hop_data')
     timestamp = message.get('timestamp')
     queue_fill = message.get('queue_fill')
+    collisions = message.get('collisions')
 
     with get_db_session() as db:
-        add_sensor_data(db, source_id, raw_packet, timestamp, noise, cpu_temp, free_heap, queue_fill, hop_data)
+        add_sensor_data(db, source_id, raw_packet, timestamp, noise, cpu_temp, free_heap, queue_fill, hop_data, collisions)

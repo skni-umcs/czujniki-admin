@@ -26,7 +26,8 @@ def add_sensor_data(db: Session,
                 cpu_temp: int,
                 free_heap: int,
                 queue_fill: int,
-                path: [(int,int)]) -> DBSensorData:
+                path: [(int,int)],
+                collisions: int) -> DBSensorData:
 
     hop_ids = [sensor_id]
     sensor_data = DBSensorData(sensor_id=sensor_id,
@@ -36,7 +37,8 @@ def add_sensor_data(db: Session,
                                cpu_temp=cpu_temp,
                                free_heap=free_heap,
                                queue_fill=queue_fill,
-                               hop_ids=hop_ids)
+                               hop_ids=hop_ids,
+                               collisions=collisions)
 
     current = sensor_id
     db.add(sensor_data)
