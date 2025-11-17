@@ -35,7 +35,7 @@ def sync_sensors_data():
     with  get_db_session() as db:
         for sensor in sensors:
             try:
-                create_new_sensor(db, sensor['sensor_id'], sensor['sensor_name'], sensor['sensor_latitude'], sensor['sensor_longitude'], 60)
+                create_new_sensor(db, sensor['sensor_id'], sensor['sensor_name'], sensor['sensor_latitude'], sensor['sensor_longitude'], 1200)
                 logging.info(f"Sensor with id {sensor['sensor_id']} added successfully.")
                 Logger.write(f"Sensor with id {sensor['sensor_id']} added.")
             except (SensorIdTakenException, SensorNameTakenException, SensorLatitudeLongitudeTakenException):
