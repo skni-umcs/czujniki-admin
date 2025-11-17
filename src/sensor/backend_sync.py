@@ -1,5 +1,5 @@
 import logging
-from .exceptions import SensorIdTakenException, SensorNameTakenException, SensorLatitudeLongitudeTakenException
+from .exceptions import SensorIdTakenException
 from ..database.core import get_db_session
 from ..logs.logger import Logger
 from .connector import create_new_sensor
@@ -37,8 +37,8 @@ def sync_sensors_data():
             try:
                 create_new_sensor(db, sensor['sensor_id'], sensor['sensor_name'], sensor['sensor_latitude'], sensor['sensor_longitude'], 1200)
                 logging.info(f"Sensor with id {sensor['sensor_id']} added successfully.")
-                Logger.write(f"Sensor with id {sensor['sensor_id']} added.")
-            except (SensorIdTakenException, SensorNameTakenException, SensorLatitudeLongitudeTakenException):
+                Logger.write(f"Sensor with id {sensor['sensor_id']} added by synchronizing with climate backend data.")
+            except SensorIdTakenException:
                 logging.info(f"Sensor with id {sensor['sensor_id']} already exists. Skipping.")
             continue
 
