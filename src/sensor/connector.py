@@ -15,9 +15,9 @@ def create_new_sensor(db: Session,
                       sensor_faculty: str,
                       sensor_latitude: float,
                       sensor_longitude: float,
-                      sensor_frequency: int) ->DBSensor:
+                      sensor_frequency: int) -> DBSensor:
 
-    sensor_with_id = get_sensor_by_id(db,sensor_id)
+    sensor_with_id = db.query(DBSensor).filter(DBSensor.sensor_id == sensor_id).first()
 
     if sensor_with_id:
         raise SensorIdTakenException
@@ -30,7 +30,7 @@ def create_new_sensor(db: Session,
                       sensor_latitude=sensor_latitude,
                       sensor_longitude=sensor_longitude,
                       sensor_status=0, # assume new sensor is offline
-                      last_timestamp= datetime.now() - timedelta(days=1),
+                      last_timestamp=datetime.now() - timedelta(days=1),
                       last_message_type="N/A")
 
     db.add(sensor)

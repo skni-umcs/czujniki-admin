@@ -10,7 +10,10 @@ def create_gateway_sensor():
                            sensor_faculty="Gateway",
                            sensor_latitude=0.0,
                            sensor_longitude=0.0,
-                           sensor_status=1)
+                           sensor_status=1,
+                           last_timestamp=datetime.now(),
+                           last_message_type="Gateway Init")
+
         db.add(gateway)
         db.commit()
         db.refresh(gateway)

@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from config import Settings
 from src.auth.security import get_current_token
 from src.database.core import get_db
-from src.sensor.connector import get_sensor_by_code
+from src.sensor.connector import get_sensor_by_id
 from src.sensor.exceptions import SensorNotFoundException
 from src.sensor_data.connector import get_graph, get_edges, get_nodes
 from src.sensor_data.models import DBSensorData
@@ -17,7 +17,7 @@ settings = Settings()
 async def get_latest_sensor_data_graph(sensor_id: int,
                          db: Session = Depends(get_db), token = Depends(get_current_token)):
     try:
-        sensor = get_sensor_by_code(db, sensor_id)
+        sensor = get_sensor_by_id(db, sensor_id)
     except SensorNotFoundException:
         raise SensorNotFoundException
 
@@ -29,7 +29,7 @@ async def get_latest_sensor_data_graph(sensor_id: int,
 async def get_latest_sensor_data_nodes(sensor_id: int,
                          db: Session = Depends(get_db), token = Depends(get_current_token)):
     try:
-        sensor = get_sensor_by_code(db, sensor_id)
+        sensor = get_sensor_by_id(db, sensor_id)
     except SensorNotFoundException:
         raise SensorNotFoundException
 
@@ -41,7 +41,7 @@ async def get_latest_sensor_data_nodes(sensor_id: int,
 async def get_latest_sensor_data_edges(sensor_id: int,
                          db: Session = Depends(get_db), token = Depends(get_current_token)):
     try:
-        sensor = get_sensor_by_code(db, sensor_id)
+        sensor = get_sensor_by_id(db, sensor_id)
     except SensorNotFoundException:
         raise SensorNotFoundException
 
@@ -53,7 +53,7 @@ async def get_latest_sensor_data_edges(sensor_id: int,
 async def get_latest_sensor_data_info(sensor_id: int,
                          db: Session = Depends(get_db), token = Depends(get_current_token)):
     try:
-        sensor = get_sensor_by_code(db, sensor_id)
+        sensor = get_sensor_by_id(db, sensor_id)
     except SensorNotFoundException as e:
         raise HTTPException(status_code=404, detail=e)
 
