@@ -31,7 +31,8 @@ MQTT is used for a two-way communication between the API and gateway.
     "raw_packet": str,
     "hop_data": [[int,int],...],
     "timestamp": time/str,
-    "queue_fill": int
+    "queue_fill": int,
+    "collisions": int
 }
 ```
 Right now, partially filled messages will not be processed.
@@ -62,6 +63,7 @@ MQTT_BROKER=[mqtt broker url]
 MQTT_PORT=[mqtt broker port]
 MQTT_TOPIC_RECEIVE=[mqtt topic for receiving data]
 MQTT_TOPIC_SEND=[mqtt topic for sending data]
+SENSOR_OFFLINE_THRESHOLD=[time in seconds from last ping to consider a sensor offline]
 ```
 
 
