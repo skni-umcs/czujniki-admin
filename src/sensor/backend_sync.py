@@ -36,10 +36,8 @@ def sync_sensors_data():
         for sensor in sensors:
             try:
                 create_new_sensor(db, sensor['sensor_id'], sensor['sensor_name'], sensor['sensor_latitude'], sensor['sensor_longitude'], 1200)
-                logging.info(f"Sensor with id {sensor['sensor_id']} added successfully.")
                 Logger.write(f"Sensor with id {sensor['sensor_id']} added by synchronizing with climate backend data.")
             except SensorIdTakenException:
-                logging.info(f"Sensor with id {sensor['sensor_id']} already exists. Skipping.")
-            continue
+                continue
 
     logging.info("Sensors data sync from backend completed.")
