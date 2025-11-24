@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     MQTT_TOPIC_RECEIVE: str
     MQTT_TOPIC_SEND: str
     MQTT_TOPIC_CLIMATE: str
+    SENSOR_OFFLINE_THRESHOLD: int
 
     @property
     def db_url(self) -> str:
