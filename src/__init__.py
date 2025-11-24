@@ -2,10 +2,14 @@ import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.interval import IntervalTrigger
 
 from . import database as models
 from config import Settings
 from src.mqtt_handler import client
+from .database.helper import check_sensors_status
+
 settings = Settings()
 from .sensor import router as module_router
 from .sensor.backend_sync import sync_sensors_data
@@ -15,6 +19,17 @@ from .frequency import routes as frequency_router
 from .simulation import routes as simulation_router
 
 logging.basicConfig(level=logging.INFO)
+
+def sensors_check():
+    try:
+        check_sensors_status()
+    except Exception as e:
+        logging.error(f"Error during sensors status check: {e}")
+
+scheduler = BackgroundScheduler()
+trigger = IntervalTrigger(minutes=1)
+scheduler.add_job(sensors_check, trigger, misfire_grace_time=30)
+scheduler.start()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

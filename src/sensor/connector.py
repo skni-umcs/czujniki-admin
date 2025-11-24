@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timedelta
 from .models import DBSensor
 from .exceptions import (SensorNotFoundException,
@@ -5,6 +6,8 @@ from .exceptions import (SensorNotFoundException,
                          SensorFrequencyNotWithinLimit)
 from sqlalchemy.orm import Session
 from ..frequency.connector import create_new_frequency_period
+from ..logs.logger import Logger
+
 
 def get_all_sensors(db: Session) -> list[DBSensor]:
 
@@ -84,7 +87,8 @@ def update_sensor_on_ping(db: Session,
 
         if sensor.sensor_status == 0:
             sensor.sensor_status = 1
-
+            Logger.write(f"Sensor with ID {sensor.sensor_id} marked as online on ping.")
+            logging.info(f"Sensor with ID {sensor.sensor_id} marked as online on ping.")
         db.commit()
 
 def update_sensor_frequency(db: Session,
