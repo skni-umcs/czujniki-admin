@@ -4,7 +4,7 @@ import logging
 import json
 from src.database.core import get_db_session
 from src.sensor_data.connector import add_sensor_data
-from src.sensor.connector import update_sensor_on_ping
+from src.sensor.connector import update_sensor_on_ping, create_new_climate_frame, update_sensor_last_sensor_data_id
 
 settings = Settings()
 client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1, settings.MQTT_CLIENT)
@@ -54,10 +54,12 @@ def handle_message(msg):
 def handle_new_climate_data(data:dict):
 
     sensor_id = data.get('sensor_id')
-    timestamp = data.get('time')
+    timestamp = int(data.get('time'))
+    logging.info(f"Received climate data from sensor {sensor_id} at time {timestamp}")
 
     with get_db_session() as db:
         update_sensor_on_ping(db, sensor_id, timestamp, "climate")
+        create_new_climate_frame(db, sensor_id, timestamp)
 
 def handle_new_service_data(data:dict):
 
@@ -67,7 +69,7 @@ def handle_new_service_data(data:dict):
     free_heap = data.get('free_heap')
     raw_packet = data.get('raw_packet')
     hop_data = data.get('hop_data')
-    timestamp = data.get('timestamp')
+    timestamp = int(data.get('timestamp'))
     queue_fill = data.get('queue_fill')
     collisions = data.get('collisions')
 

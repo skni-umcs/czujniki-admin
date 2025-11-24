@@ -1,10 +1,12 @@
 import logging
+from time import time
 from datetime import datetime
 from src.frequency.connector import create_new_frequency_period
 from src.logs.logger import Logger
 from src.sensor.models import DBSensor
 from src.database.core import get_db_session
 from config import Settings
+from src.sensor_data.models import DBSensorData
 
 sett = Settings()
 
@@ -15,7 +17,7 @@ def create_gateway_sensor():
                            sensor_latitude=0.0,
                            sensor_longitude=0.0,
                            sensor_status=1,
-                           last_timestamp=datetime.now(),
+                           last_message_timestamp=time(),
                            last_message_type="Gateway Init")
 
         db.add(gateway)
@@ -40,11 +42,10 @@ def check_sensors_status():
     :return:
     """
     with get_db_session() as db:
-        sensors = db.query(DBSensor).all()
+        sensors = db.query(DBSensor).filter(DBSensor.sensor_status == 1).all()
         for sensor in sensors:
-            if sensor.sensor_status == 1:
-                timediff = datetime.now() - sensor.last_timestamp
-                if timediff.total_seconds() > sett.SENSOR_OFFLINE_THRESHOLD:
+                timediff = time() - sensor.last_message_timestamp
+                if timediff > sett.SENSOR_OFFLINE_THRESHOLD:
                     sensor.sensor_status = 0
                     Logger.write(f"Sensor with ID {sensor.sensor_id} marked as offline due to inactivity.")
                     logging.info(f"Sensor with ID {sensor.sensor_id} marked as offline due to inactivity.")

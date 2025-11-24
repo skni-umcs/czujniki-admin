@@ -1,12 +1,14 @@
 import logging
 from datetime import datetime, timedelta
-from .models import DBSensor
+from time import time
+from .models import DBSensor, DBClimateFrame
 from .exceptions import (SensorNotFoundException,
                          SensorIdTakenException,
                          SensorFrequencyNotWithinLimit)
 from sqlalchemy.orm import Session
 from ..frequency.connector import create_new_frequency_period
 from ..logs.logger import Logger
+from ..sensor_data.models import DBSensorData
 
 
 def get_all_sensors(db: Session) -> list[DBSensor]:
@@ -33,7 +35,6 @@ def create_new_sensor(db: Session,
                       sensor_latitude=sensor_latitude,
                       sensor_longitude=sensor_longitude,
                       sensor_status=0, # assume new sensor is offline
-                      last_timestamp=datetime.now() - timedelta(days=1),
                       last_message_type="N/A")
 
     db.add(sensor)
@@ -48,6 +49,22 @@ def create_new_sensor(db: Session,
     db.commit()
 
     return sensor
+
+def create_new_climate_frame(db: Session,
+                      sensor_id: int,
+                      timestamp: int):
+
+    frame = DBClimateFrame(sensor_id=sensor_id,
+                         timestamp=timestamp)
+
+    db.add(frame)
+    db.commit()
+
+    db.refresh(frame)
+
+    get_sensor_by_id(db,sensor_id).last_climate_frame_id = frame.climate_frame_id
+
+    db.commit()
 
 def get_sensor_by_id(db: Session,
                      sensor_id: int) -> DBSensor:
@@ -74,7 +91,7 @@ def update_sensor_last_sensor_data_id(db: Session,
 
 def update_sensor_on_ping(db: Session,
                           sensor_id: int,
-                          timestamp: datetime,
+                          timestamp: int,
                           message_type: str) -> None:
 
         sensor = get_sensor_by_id(db,sensor_id)
@@ -82,7 +99,7 @@ def update_sensor_on_ping(db: Session,
         if sensor is None:
             raise SensorNotFoundException
 
-        sensor.last_timestamp = timestamp
+        sensor.last_message_timestamp = timestamp
         sensor.last_message_type = message_type
 
         if sensor.sensor_status == 0:
@@ -122,4 +139,23 @@ def delete_sensor_by_id(db: Session,
     db.delete(sensor)
     db.commit()
 
+def get_last_climate_frame(db: Session, frame_id: int) -> DBClimateFrame:
+    return db.query(DBClimateFrame).filter(DBClimateFrame.climate_frame_id == frame_id).first()
 
+
+def calculate_climate_delays(db: Session) -> list[dict[int,int]]:
+    """
+    Calculate delays in seconds for active sensors with at least one climate frame from earlier than one hour.
+    :param db: database session
+    :return: A list of dictionaries containing delays in seconds for sensors with at least one climate frame from earlier than one hour.
+    """
+    sensors = get_all_sensors(db)
+    result = []
+    now: int = int(time())
+    for sensor in sensors:
+        if sensor.sensor_status == 1 and sensor.last_climate_frame_id is not None:
+            newest_climate_timestamp = get_last_climate_frame(db,sensor.last_climate_frame_id).timestamp
+            delay = now - newest_climate_timestamp
+            if delay < 3600:
+                result.append({"sensor_id": sensor.sensor_id, "delay": delay})
+    return result
