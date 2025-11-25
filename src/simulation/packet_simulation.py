@@ -1,11 +1,12 @@
+import logging
+
+from src.sensor.models import DBClimateFrame, DBSensor
+from sqlalchemy.orm import Session
+from config import Settings
+from sqlalchemy import and_
 from datetime import datetime
 
-from sqlalchemy import or_
-from sqlalchemy.orm import Session
-
-from src.frequency.models import DBFrequencyPeriod
-from src.sensor_data.models import DBSensorData
-
+settings = Settings()
 
 def count_seconds(start: datetime, end: datetime) -> int:
     time_difference = end - start
@@ -18,36 +19,55 @@ def count_packets_for_period(start: datetime, end: datetime, frequency: int):
     return count_packets_for_duration(count_seconds(start,end), frequency)
 
 def simulate_packets(db: Session,sensor_id: int, sim_start: datetime, sim_end: datetime):
-    real_packets_count = db.query(DBSensorData).filter(DBSensorData.sensor_id == sensor_id,
-                                                       DBSensorData.timestamp >= sim_start,
-                                                       DBSensorData.timestamp <= sim_end).count()
+    """
+    calculates delivery statistics for a given sensor over a specified time period.
+    :param db: database Session
+    :param sensor_id: ID of the sensor to simulate packets for
+    :param sim_start: datetime of simulation start
+    :param sim_end: datetime of simulation end
+    :return: a dictionary with simulation results
+    """
+    sensor_sent_packets = (db.query(DBClimateFrame).filter(and_(DBClimateFrame.sensor_id == sensor_id,
+                                                                DBClimateFrame.timestamp >= int(sim_start.timestamp()),
+                                                                DBClimateFrame.timestamp <= int(sim_end.timestamp()),)
+                           ).count())
 
-    #TODO: check if any frequency period are in db for this sensor
-    #TODO: don't count packets if frequency of a period is 0 (sensor is offline)
+    total_seconds = count_seconds(sim_start, sim_end)
+    desired_packets = count_packets_for_duration(total_seconds,settings.SENSOR_SEND_RATE_SECONDS)
+    delivered_percent = (sensor_sent_packets / desired_packets) * 100
+    delivered_mean_per_hour = sensor_sent_packets / (total_seconds/3600)
 
+    return{
+        "sensor_id": sensor_id,
+        "desired_packets": desired_packets,
+        "sent_packets": sensor_sent_packets,
+        "delivered_percent": delivered_percent,
+        "delivered_mean_per_hour": delivered_mean_per_hour
+    }
 
-    best_case = db.query(DBFrequencyPeriod).filter(DBFrequencyPeriod.sensor_id == sensor_id,
-                                             DBFrequencyPeriod.start <= sim_start,or_(
-                                            DBFrequencyPeriod.end == None,
-                                            DBFrequencyPeriod.end >= sim_end)).first()
+def simulate_packets_all(db: Session, sim_start: datetime, sim_end: datetime):
+    """
+    calculates delivery statistics for all sensors over a specified time period.
+    :param db: database Session
+    :param sim_start: datetime of simulation start
+    :param sim_end: datetime of simulation end
+    :return: a dictionary with simulation results
+    """
+    sensor_count = db.query(DBSensor).count()
+    sensor_sent_packets = (db.query(DBClimateFrame)
+                           .filter(and_(DBClimateFrame.timestamp >= int(sim_start.timestamp()),
+                                        DBClimateFrame.timestamp <= int(sim_end.timestamp()))
+                           ).count())
 
-    if best_case:
-        sim_packets = count_packets_for_period(sim_start, sim_end, best_case.frequency)
-        return real_packets_count, sim_packets
+    total_seconds = count_seconds(sim_start, sim_end)
+    desired_packets = count_packets_for_duration(total_seconds,settings.SENSOR_SEND_RATE_SECONDS) * sensor_count
+    delivered_percent = sensor_sent_packets / desired_packets * 100
+    delivered_mean_per_hour = sensor_sent_packets / (total_seconds/3600)
 
-    sum_sim_packets = 0
-    current = db.query(DBFrequencyPeriod).filter(DBFrequencyPeriod.sensor_id == sensor_id,
-                                                           DBFrequencyPeriod.start <= sim_start,
-                                                           DBFrequencyPeriod.end > sim_start).first()
-
-    sum_sim_packets += count_packets_for_period(sim_start, current.end, current.frequency)
-
-    current = db.query(DBFrequencyPeriod).filter(DBFrequencyPeriod.sensor_id == sensor_id,
-                                                 DBFrequencyPeriod.start == current.end).first()
-    while current.end is not None and current.end < sim_end:
-        sum_sim_packets += count_packets_for_period(current.start, current.end, current.frequency)
-        current = db.query(DBFrequencyPeriod).filter(DBFrequencyPeriod.sensor_id == sensor_id,
-                                                     DBFrequencyPeriod.start == current.end).first()
-
-    sum_sim_packets += count_packets_for_period(current.start, sim_end, current.frequency)
-    return real_packets_count, sum_sim_packets
+    return{
+        "sensor_count": sensor_count,
+        "desired_packets": desired_packets,
+        "sent_packets": sensor_sent_packets,
+        "delivered_percent": delivered_percent,
+        "delivered_mean_per_hour": delivered_mean_per_hour
+    }
