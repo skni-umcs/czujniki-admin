@@ -16,7 +16,7 @@ class DBSensorData(Base):
     sensor_data_id = Column(Integer, primary_key=True, autoincrement=True)
     sensor_id = Column(Integer, ForeignKey('sensors.sensor_id'))
     raw_packet = Column(String(200)) # raw message from gate
-    timestamp = Column(TIMESTAMP)
+    timestamp = Column(Integer)
     noise = Column(Integer)
     cpu_temp = Column(Integer)
     free_heap = Column(Integer)

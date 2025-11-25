@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from .models import DBEdge, DBSensorData
-from src.sensor.connector import get_sensor_by_code, update_sensor_last_sensor_data_id
+from src.sensor.connector import get_sensor_by_id, update_sensor_last_sensor_data_id
 
 
 def add_edge(db: Session,
@@ -21,7 +21,7 @@ def add_edge(db: Session,
 def add_sensor_data(db: Session,
                 sensor_id: int,
                 raw_packet: str,
-                timestamp: str,
+                timestamp: int,
                 noise: int,
                 cpu_temp: int,
                 free_heap: int,
@@ -58,7 +58,7 @@ def get_graph(db: Session, sensor_data_id: int):
     sensor_data = db.query(DBSensorData).filter(DBSensorData.sensor_data_id == sensor_data_id).first()
     graph = {'nodes': [], 'edges': []}
     for ids in sensor_data.hop_ids:
-        sensor = get_sensor_by_code(db, ids)
+        sensor = get_sensor_by_id(db, ids)
         graph['nodes'].append({
             'id': sensor.sensor_id,
             'longitude': sensor.sensor_longitude,
@@ -75,7 +75,7 @@ def get_nodes(db: Session, sensor_data_id: int):
     sensor_data = db.query(DBSensorData).filter(DBSensorData.sensor_data_id == sensor_data_id).first()
     nodes = []
     for ids in sensor_data.hop_ids:
-        sensor = get_sensor_by_code(db, ids)
+        sensor = get_sensor_by_id(db, ids)
         nodes.append({
             'id': sensor.sensor_id,
             'longitude': sensor.sensor_longitude,
