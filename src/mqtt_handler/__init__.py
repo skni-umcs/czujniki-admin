@@ -2,6 +2,7 @@ from paho.mqtt import client as mqtt
 from config import Settings
 import logging
 import json
+import asyncio
 from src.database.core import get_db_session
 from src.sensor_data.connector import add_sensor_data
 from src.sensor.connector import update_sensor_on_ping, create_new_climate_frame, update_sensor_last_sensor_data_id
