@@ -10,10 +10,10 @@ class Edge(BaseModel):
 class SensorNode(BaseModel):
     id: int
     source: int
-    target: int
+    target: int | str | None
     longitude: float
     latitude: float
-    stat1: int
+    stat1: int | None
 
 class Graph(BaseModel):
     edges: list[Edge]
@@ -40,6 +40,8 @@ class SensorData(BaseModel):
     raw_packet: str
     noise: int
     cpu_temp: int
+    latitude: float
+    longitude: float
     free_heap: int
     queue_fill: int
     hop_ids: list[tuple[int, int]]

@@ -24,7 +24,7 @@ async def simulate_for_packets(start: str,
     return results
 
 @router.get("/{sensor_id}", response_model=SimulationResponseSchema)
-async def simulate_for_packets(sensor_id: int,
+async def simulate_for_packets_by_id(sensor_id: int,
                                start: str,
                                end: str,
                                db: Session = Depends(get_db),
