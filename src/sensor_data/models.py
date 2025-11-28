@@ -7,8 +7,10 @@ class DBEdge(Base):
     __tablename__ = 'edges'
     edge_id = Column(Integer, primary_key=True, autoincrement=True)
     sensor_data_id = Column(Integer, ForeignKey('sensor_data.sensor_data_id'))
+    id = Column(Integer)
     source = Column(Integer, ForeignKey('sensors.sensor_id'))
     target = Column(Integer, ForeignKey('sensors.sensor_id'))
+    dbm = Column(Integer)
     rssi = Column(Integer)
 
 class DBSensorData(Base):

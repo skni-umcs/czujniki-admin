@@ -1,18 +1,24 @@
 from pydantic import BaseModel
 
 class Edge(BaseModel):
+    id: int
     source: int
     target: int
+    dbm: int
     rssi: int
 
 class SensorNode(BaseModel):
     id: int
+    source: int
+    target: int
     longitude: float
     latitude: float
+    stat1: int
 
 class Graph(BaseModel):
     edges: list[Edge]
     nodes: list[SensorNode]
+    timestamp: str
 
 class SensorDataBase(BaseModel):
     sensor_data_id: int
