@@ -36,8 +36,8 @@ class SensorData(BaseModel):
     cpu_temp: int
     free_heap: int
     queue_fill: int
-    hop_ids: list[int]
-    collisions: int
+    hop_ids: list[tuple[int, int]]
+    collisions: int | None
 
     class Config:
         from_attributes = True
