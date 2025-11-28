@@ -22,5 +22,5 @@ class DBSensorData(Base):
     free_heap = Column(Integer)
     queue_fill = Column(Integer)
     hop_ids = Column(ARRAY(Integer))
-    collisions = Column(Integer)
+    collisions = Column(Integer, nullable=True)
     edges = relationship('DBEdge')
