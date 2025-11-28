@@ -15,7 +15,7 @@ def get_all_sensors(db: Session) -> list[DBSensor]:
 
 def create_new_sensor(db: Session,
                       sensor_id: int,
-                      sensor_faculty: str,
+                      sensor_name: str,
                       sensor_latitude: float,
                       sensor_longitude: float,
                       sensor_frequency: int) ->DBSensor:
@@ -25,10 +25,10 @@ def create_new_sensor(db: Session,
     if sensor_with_code:
         raise SensorIdTakenException
 
-    # sensor_with_name = db.query(DBSensor).filter(DBSensor.sensor_faculty == sensor_faculty).first()
-    #
-    # if sensor_with_name:
-    #     raise SensorNameTakenException
+    sensor_with_name = db.query(DBSensor).filter(DBSensor.sensor_name == sensor_name).first()
+
+    if sensor_with_name:
+        raise SensorNameTakenException
 
     sensor_with_location = db.query(DBSensor).filter(DBSensor.sensor_latitude == sensor_latitude,
                                                     DBSensor.sensor_longitude == sensor_longitude).first()
@@ -41,7 +41,7 @@ def create_new_sensor(db: Session,
 
 
     sensor = DBSensor(sensor_id=sensor_id,
-                      sensor_faculty=sensor_faculty,
+                      sensor_name=sensor_name,
                       sensor_latitude=sensor_latitude,
                       sensor_longitude=sensor_longitude,
                       sensor_status=1)
@@ -83,7 +83,7 @@ def update_sensor_last_sensor_data_id(db: Session,
 
 def update_sensor_info(db: Session,
                        sensor_id: int,
-                       sensor_faculty: str | None,
+                       sensor_name: str | None,
                        sensor_latitude: float | None,
                        sensor_longitude: float | None,
                        sensor_frequency: int | None) ->DBSensor:
@@ -92,12 +92,12 @@ def update_sensor_info(db: Session,
     except SensorNotFoundException:
         raise SensorNotFoundException
 
-    if sensor_faculty:
-        sensor_with_name = db.query(DBSensor).filter(DBSensor.sensor_faculty == sensor_faculty).first()
+    if sensor_name:
+        sensor_with_name = db.query(DBSensor).filter(DBSensor.sensor_name == sensor_name).first()
 
         if sensor_with_name:
             raise SensorNameTakenException
-        sensor.sensor_faculty = sensor_faculty
+        sensor.sensor_name = sensor_name
 
     if sensor_frequency is not None:
         if sensor_frequency > 3600 or sensor_frequency < 5:
