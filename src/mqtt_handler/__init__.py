@@ -1,5 +1,3 @@
-import asyncio
-
 from paho.mqtt import client as mqtt
 from config import Settings
 import logging
