@@ -7,8 +7,10 @@ class DBEdge(Base):
     __tablename__ = 'edges'
     edge_id = Column(Integer, primary_key=True, autoincrement=True)
     sensor_data_id = Column(Integer, ForeignKey('sensor_data.sensor_data_id'))
+    id = Column(Integer)
     source = Column(Integer, ForeignKey('sensors.sensor_id'))
-    target = Column(Integer, ForeignKey('sensors.sensor_id'))
+    target = Column(Integer, ForeignKey('sensors.sensor_id'), nullable=True)
+    dbm = Column(Integer)
     rssi = Column(Integer)
 
 class DBSensorData(Base):
@@ -16,10 +18,11 @@ class DBSensorData(Base):
     sensor_data_id = Column(Integer, primary_key=True, autoincrement=True)
     sensor_id = Column(Integer, ForeignKey('sensors.sensor_id'))
     raw_packet = Column(String(200)) # raw message from gate
-    timestamp = Column(TIMESTAMP)
+    timestamp = Column(Integer)
     noise = Column(Integer)
     cpu_temp = Column(Integer)
     free_heap = Column(Integer)
     queue_fill = Column(Integer)
     hop_ids = Column(ARRAY(Integer))
+    collisions = Column(Integer, nullable=True)
     edges = relationship('DBEdge')
