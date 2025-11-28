@@ -1,18 +1,30 @@
 import logging
-from .manager import manager
+from .manager import sensor_manager, service_manager
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
 router = APIRouter(prefix="/ws", tags=["websockets"])
 
-@router.websocket("/ping")
+@router.websocket("/sensors")
 async def websocket_ping(websocket: WebSocket):
-    await manager.connect(websocket)
+    await sensor_manager.connect(websocket)
     try:
         while True:
             msg = await websocket.receive_text()
             if msg == "ping":
                 await websocket.send_text("pong")
     except WebSocketDisconnect:
-        manager.disconnect(websocket)
+        sensor_manager.disconnect(websocket)
+        logging.info("WebSocket disconnected")
+
+@router.websocket("/service")
+async def websocket_ping(websocket: WebSocket):
+    await service_manager.connect(websocket)
+    try:
+        while True:
+            msg = await websocket.receive_text()
+            if msg == "ping":
+                await websocket.send_text("pong")
+    except WebSocketDisconnect:
+        service_manager.disconnect(websocket)
         logging.info("WebSocket disconnected")

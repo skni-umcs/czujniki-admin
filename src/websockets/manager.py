@@ -15,4 +15,5 @@ class ConnectionManager():
         for connection in self.active_connections:
             await connection.send_text(message)
 
-manager = ConnectionManager()
+sensor_manager = ConnectionManager()
+service_manager = ConnectionManager()

@@ -11,7 +11,7 @@ from . import database as models
 from config import Settings
 from src.mqtt_handler import client
 from .database.helper import check_sensors_status
-from .websockets.utils import push_update
+from .websockets.utils import push_sensor_update
 
 settings = Settings()
 from .sensor import router as module_router
@@ -32,7 +32,7 @@ def sensors_check():
             return
         if state.MAIN_EVENT_LOOP:
             state.MAIN_EVENT_LOOP.call_soon_threadsafe(
-                lambda: asyncio.create_task(push_update())
+                lambda: asyncio.create_task(push_sensor_update())
             )
     except RuntimeError as re:
         logging.error(f"Runtime error while pushing websocket update: {re}")
