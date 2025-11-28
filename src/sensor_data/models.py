@@ -9,7 +9,7 @@ class DBEdge(Base):
     sensor_data_id = Column(Integer, ForeignKey('sensor_data.sensor_data_id'))
     id = Column(Integer)
     source = Column(Integer, ForeignKey('sensors.sensor_id'))
-    target = Column(Integer, ForeignKey('sensors.sensor_id'))
+    target = Column(Integer, ForeignKey('sensors.sensor_id'), nullable=True)
     dbm = Column(Integer)
     rssi = Column(Integer)
 

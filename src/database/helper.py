@@ -13,11 +13,11 @@ def create_gateway_sensor():
     with get_db_session() as db:
         gateway = DBSensor(sensor_id=0,
                            sensor_faculty="Gateway",
-                           sensor_latitude=0.0,
-                           sensor_longitude=0.0,
+                           sensor_latitude=51.245135538166444,
+                           sensor_longitude=22.542888321561627,
                            sensor_status=1,
                            last_message_timestamp=time(),
-                           last_message_type="Gateway Init")
+                           last_message_type="N/A")
 
         db.add(gateway)
         db.commit()

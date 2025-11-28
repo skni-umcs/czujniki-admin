@@ -47,7 +47,7 @@ def add_sensor_data(db: Session,
     current = sensor_id
     db.add(sensor_data)
     for i, (target, rssi) in enumerate(hop_data):
-        edge = add_edge(db, i, sensor_data.sensor_data_id, current, target, rssi)
+        edge = add_edge(db, i+1, sensor_data.sensor_data_id, current, target, rssi)
         sensor_data.edges.append(edge)
         current = target
 
@@ -65,7 +65,7 @@ def get_graph(db: Session, sensor_data_id: int):
         graph['nodes'].append({
             'id': sensor_info.sensor_id,
             'source': edge.source,
-            'target': edge.target,
+            'target': "255" if edge.target == 0 else edge.target,
             'longitude': sensor_info.sensor_longitude,
             'latitude': sensor_info.sensor_latitude,
             'stat1': edge.dbm
@@ -77,6 +77,15 @@ def get_graph(db: Session, sensor_data_id: int):
             'dbm': edge.dbm,
             'rssi': edge.rssi
         })
+
+    graph['nodes'].append({
+        'id': "255",
+        'source': "255",
+        'target': "null",
+        'longitude': 22.542888321561627,
+        'latitude': 51.245135538166444,
+        'stat1': None
+    })
     return graph
 
 def get_edges(db: Session, sensor_data_id: int):
