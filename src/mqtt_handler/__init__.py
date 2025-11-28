@@ -1,3 +1,5 @@
+import asyncio
+
 from paho.mqtt import client as mqtt
 from config import Settings
 import logging
@@ -5,6 +7,8 @@ import json
 from src.database.core import get_db_session
 from src.sensor_data.connector import add_sensor_data
 from src.sensor.connector import update_sensor_on_ping, create_new_climate_frame, update_sensor_last_sensor_data_id
+from src.websockets.utils import push_sensor_update, push_service_update
+import src.shared_state as state
 
 settings = Settings()
 client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1, settings.MQTT_CLIENT)
@@ -23,8 +27,18 @@ def on_message(client, userdata, msg):
         return
     try:
         handle_message(msg)
+
+        if state.MAIN_EVENT_LOOP:
+            state.MAIN_EVENT_LOOP.call_soon_threadsafe(
+                lambda: asyncio.create_task(push_sensor_update())
+            )
+
+    except RuntimeError as re:
+        logging.error(f"Runtime error while pushing websocket update: {re}")
     except Exception as e:
         logging.error(f"Error while unwrapping message: {e}")
+
+
 
 def on_publish(client, userdata, mid):
     logging.info(f"Published message in topic {settings.MQTT_TOPIC_SEND}")
@@ -64,7 +78,7 @@ def handle_new_climate_data(data:dict):
 def handle_new_service_data(data:dict):
 
     source_id = data.get('source_id')
-    cpu_temp = data.get('cpu_temp')
+    cpu_temp = data.get('cpu_temperature')
     noise = data.get('noise')
     free_heap = data.get('free_heap')
     raw_packet = data.get('raw_packet')
@@ -76,3 +90,8 @@ def handle_new_service_data(data:dict):
     with get_db_session() as db:
         update_sensor_on_ping(db, source_id, timestamp, "service")
         add_sensor_data(db, source_id, raw_packet, timestamp, noise, cpu_temp, free_heap, queue_fill, hop_data, collisions)
+
+    if state.MAIN_EVENT_LOOP:
+        state.MAIN_EVENT_LOOP.call_soon_threadsafe(
+            lambda: asyncio.create_task(push_service_update(source_id))
+        )

@@ -13,7 +13,7 @@ from ..sensor_data.models import DBSensorData
 
 def get_all_sensors(db: Session) -> list[DBSensor]:
 
-    return db.query(DBSensor).all()
+    return db.query(DBSensor).filter(DBSensor.sensor_id != 0).all()
 
 def create_new_sensor(db: Session,
                       sensor_id: int,

@@ -13,11 +13,19 @@ locally, whole API can be seen here:
 localhost:8000/docs#
 ```
 
-# What is used
-## Climate backend synchronization
-The service synchronizes with the climate backend to get the latest climate data for each sensor. 
+# Abilities
+1. Sync with climate backend to get latest sensors count with their location.
+2. Listening to MQTT messages from gateway with technical and climate data.
+3. Storing service data in the database.
+4. Two websocket endpoints for real-time data:
+   - one for sensor network graph in service data
+   - one for sensor general info
+5. Background status checker for sensors to mark them offline if no data received in a while.
+6. Authentication and authorization with either authentik or client credentials.
 
-For now, this is done once on a startup. Later it will be done periodically.
+## Climate backend synchronization
+Upon starting the app, it will synchronize with the climate backend to get the latest location data for each sensor. 
+
 ## MQTT
 MQTT is used for a two-way communication between the API and gateway.
 ### Valid MQTT messages received by service
@@ -35,16 +43,7 @@ MQTT is used for a two-way communication between the API and gateway.
     "collisions": int
 }
 ```
-Right now, partially filled messages will not be processed.
-
-### MQTT messages send by service
-#### New frequency for sensor
-```json
-{
-    "sensor_id": str,
-    "new_frequency_temp": 0
-}
-```
+For now, messages without collisions field will be processed normally.
 
 ## .env file is required to run the service:
 ```bash
@@ -64,6 +63,7 @@ MQTT_PORT=[mqtt broker port]
 MQTT_TOPIC_RECEIVE=[mqtt topic for receiving data]
 MQTT_TOPIC_SEND=[mqtt topic for sending data]
 SENSOR_OFFLINE_THRESHOLD=[time in seconds from last ping to consider a sensor offline]
+SENSOR_SEND_RATE_SECONDS=[time in seconds between sensor data sends]
 ```
 
 
