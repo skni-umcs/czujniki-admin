@@ -14,9 +14,9 @@ async def simulate_for_packets(start: str,
                                db: Session = Depends(get_db),
                                token = Depends(get_current_token)):
     try:
-        start_date = datetime.strptime(start, "%Y-%m-%dT%H:%M:%S.%fZ")
-        end_date = datetime.strptime(end, "%Y-%m-%dT%H:%M:%S.%fZ")
-        results = simulate_packets_all(db, start_date, end_date)
+        start_timestamp = int(start)
+        end_timestamp = int(end)
+        results = simulate_packets_all(db, start_timestamp, end_timestamp)
 
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -30,9 +30,9 @@ async def simulate_for_packets_by_id(sensor_id: int,
                                db: Session = Depends(get_db),
                                token = Depends(get_current_token)):
     try:
-        start_date = datetime.strptime(start, "%Y-%m-%dT%H:%M:%S.%fZ")
-        end_date = datetime.strptime(end, "%Y-%m-%dT%H:%M:%S.%fZ")
-        results = simulate_packets(db, sensor_id, start_date, end_date)
+        start_timestamp = int(start)
+        end_timestamp = int(end)
+        results = simulate_packets(db, sensor_id, start_timestamp, end_timestamp)
 
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

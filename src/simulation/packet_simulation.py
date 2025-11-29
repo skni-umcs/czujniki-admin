@@ -8,28 +8,27 @@ from datetime import datetime
 
 settings = Settings()
 
-def count_seconds(start: datetime, end: datetime) -> int:
-    time_difference = end - start
-    return int(time_difference.total_seconds())
+def count_seconds(start: int, end: int) -> int:
+    return end - start
 
 def count_packets_for_duration(seconds: int, frequency: int) -> int:
     return seconds // frequency
 
-def count_packets_for_period(start: datetime, end: datetime, frequency: int):
+def count_packets_for_period(start: int, end: int, frequency: int):
     return count_packets_for_duration(count_seconds(start,end), frequency)
 
-def simulate_packets(db: Session,sensor_id: int, sim_start: datetime, sim_end: datetime):
+def simulate_packets(db: Session,sensor_id: int, sim_start: int, sim_end: int):
     """
     calculates delivery statistics for a given sensor over a specified time period.
     :param db: database Session
     :param sensor_id: ID of the sensor to simulate packets for
-    :param sim_start: datetime of simulation start
-    :param sim_end: datetime of simulation end
+    :param sim_start: epoch of simulation start
+    :param sim_end: epoch of simulation end
     :return: a dictionary with simulation results
     """
     sensor_sent_packets = (db.query(DBClimateFrame).filter(and_(DBClimateFrame.sensor_id == sensor_id,
-                                                                DBClimateFrame.timestamp >= int(sim_start.timestamp()),
-                                                                DBClimateFrame.timestamp <= int(sim_end.timestamp()),)
+                                                                DBClimateFrame.timestamp >= sim_start,
+                                                                DBClimateFrame.timestamp <= sim_end,)
                            ).count())
 
     total_seconds = count_seconds(sim_start, sim_end)
@@ -45,18 +44,18 @@ def simulate_packets(db: Session,sensor_id: int, sim_start: datetime, sim_end: d
         "delivered_mean_per_hour": delivered_mean_per_hour
     }
 
-def simulate_packets_all(db: Session, sim_start: datetime, sim_end: datetime):
+def simulate_packets_all(db: Session, sim_start: int, sim_end: int):
     """
     calculates delivery statistics for all sensors over a specified time period.
     :param db: database Session
-    :param sim_start: datetime of simulation start
-    :param sim_end: datetime of simulation end
+    :param sim_start: epoch of simulation start
+    :param sim_end: epoch of simulation end
     :return: a dictionary with simulation results
     """
     sensor_count = db.query(DBSensor).count()
     sensor_sent_packets = (db.query(DBClimateFrame)
-                           .filter(and_(DBClimateFrame.timestamp >= int(sim_start.timestamp()),
-                                        DBClimateFrame.timestamp <= int(sim_end.timestamp()))
+                           .filter(and_(DBClimateFrame.timestamp >= sim_start,
+                                        DBClimateFrame.timestamp <= sim_end)
                            ).count())
 
     total_seconds = count_seconds(sim_start, sim_end)
