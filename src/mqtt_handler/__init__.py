@@ -84,7 +84,7 @@ def handle_new_service_data(data:dict):
     hop_data = data.get('hop_data')
     timestamp = int(data.get('timestamp'))
     queue_fill = data.get('queue_fill')
-    collisions = data.get('collisions')
+    collisions = data.get('collision_rate')
 
     with get_db_session() as db:
         update_sensor_on_ping(db, source_id, timestamp, "service")
