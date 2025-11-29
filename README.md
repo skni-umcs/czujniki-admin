@@ -40,7 +40,7 @@ MQTT is used for a two-way communication between the API and gateway.
     "hop_data": [[int,int],...],
     "timestamp": time/str,
     "queue_fill": int,
-    "collisions": int
+    "collision_rate": int
 }
 ```
 For now, messages without collisions field will be processed normally.
