@@ -7,7 +7,7 @@ python start.py
 
 if [ "$TYPE" = "dev" ]; then
     echo "Running in development mode"
-    uvicorn src.rest:app --reload --host 0.0.0.0 --port "$PORT"
+    uvicorn src.rest:app --host 0.0.0.0 --port "$PORT"
 else
     echo "Unknown type $TYPE"
     exit 1
