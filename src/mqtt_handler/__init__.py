@@ -71,7 +71,7 @@ def handle_new_climate_data(data:dict):
     logging.info(f"Received climate data from sensor {sensor_id} at time {timestamp}")
 
     with get_db_session() as db:
-        update_sensor_on_ping(db, sensor_id, timestamp, "climate")
+        update_sensor_on_ping(db, sensor_id, "climate")
         create_new_climate_frame(db, sensor_id, timestamp)
 
 def handle_new_service_data(data:dict):
@@ -87,7 +87,7 @@ def handle_new_service_data(data:dict):
     collisions = data.get('collision_rate')
 
     with get_db_session() as db:
-        update_sensor_on_ping(db, source_id, timestamp, "service")
+        update_sensor_on_ping(db, source_id, "service")
         add_sensor_data(db, source_id, raw_packet, timestamp, noise, cpu_temp, free_heap, queue_fill, hop_data, collisions)
 
     if state.MAIN_EVENT_LOOP:

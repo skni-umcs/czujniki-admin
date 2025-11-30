@@ -91,7 +91,6 @@ def update_sensor_last_sensor_data_id(db: Session,
 
 def update_sensor_on_ping(db: Session,
                           sensor_id: int,
-                          timestamp: int,
                           message_type: str) -> None:
 
         sensor = get_sensor_by_id(db,sensor_id)
@@ -99,7 +98,7 @@ def update_sensor_on_ping(db: Session,
         if sensor is None:
             raise SensorNotFoundException
 
-        sensor.last_message_timestamp = timestamp
+        sensor.last_message_timestamp = int(time())
         sensor.last_message_type = message_type
 
         if sensor.sensor_status == 0:
